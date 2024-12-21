@@ -2,6 +2,8 @@
 
 let
   distros = import ./distros.nix { inherit lib; };
+  portManager = import ./port-manager.nix { inherit lib pkgs; };
+  isoManager = import ./iso-manager.nix { inherit lib pkgs; };
 in
 {
   inherit (distros) distros validateDistro getDistroUrl;
@@ -19,32 +21,6 @@ in
         install -Dm644 ${ovmf.fd}/FV/OVMF_VARS.fd "${vars_path}"
       else
         echo "  Using existing VARS file"
-      fi
-    }
-
-    function download_iso() {
-      local iso_dir="${stateDir}/testing/iso"
-      local iso_name="${distro}-${variant}-${versionString}.iso"
-      local iso_path="$iso_dir/$iso_name"
-      
-      mkdir -p "$iso_dir"
-      
-      if [ ! -f "$iso_path" ]; then
-        echo "  Downloading ${distros.distros.${distro}.name} ${versionString}"
-        echo "  Variant: ${distros.distros.${distro}.variants.${variant}.name}"
-        echo "  URL: ${isoUrl}"
-        echo "  This might take a while..."
-        wget -O "$iso_path" "${isoUrl}"
-        echo "  Download complete!"
-      fi
-      
-      # Prüfe ob die Datei existiert
-      if [ -f "$iso_path" ]; then
-        echo "$iso_path"
-        return 0
-      else
-        echo ""
-        return 1
       fi
     }
 
@@ -66,13 +42,17 @@ in
       local iso_path="$1"
       local qemu_args=()
 
+      # Get free port and store it
+      local spice_port
+      spice_port=$(${portManager.vmPortManager name})
+      
       echo "🚀 Starting VM..."
       echo "  Name: ${name}"
       echo "  Memory: ${toString memory}MB"
       echo "  Cores: ${toString cores}"
-      echo "  SPICE Display: spice://localhost:5900"
+      echo "  SPICE Display: spice://localhost:$spice_port"
       echo ""
-      echo "💡 To connect: virt-viewer --connect spice://localhost:5900"
+      echo "💡 To connect: virt-viewer --connect spice://localhost:$spice_port"
       echo "⏳ Starting QEMU (this might take a moment)..."
       echo ""
 
@@ -93,7 +73,7 @@ in
         -drive if=pflash,format=raw,readonly=on,file=${ovmf.fd}/FV/OVMF_CODE.fd \
         -drive if=pflash,format=raw,file="${vars_path}" \
         -vga qxl \
-        -spice port=5900,disable-ticketing=on \
+        -spice port="$spice_port",disable-ticketing=on \
         -device virtio-tablet-pci \
         -device virtio-keyboard-pci \
         -device virtio-net-pci,netdev=net0 \
@@ -109,7 +89,25 @@ in
     prepare_ovmf
     create_disk
     echo "💿 Checking ISO..."
-    iso_path=$(download_iso)
+    echo "Debug: Distro = ${distro}"
+    echo "Debug: Version = ${versionString}"
+    echo "Debug: URL = ${isoUrl}"
+    
+    iso_path="$(${isoManager.isoManager {
+      name = "${distro}-${name}";
+      inherit stateDir;
+      url = "${toString isoUrl}";
+      distroName = distros.distros.${distro}.name;
+      inherit variant;
+      version = versionString;
+    }})"
+    
+    echo "Debug: ISO path = $iso_path"
+    
+    if [ $? -ne 0 ]; then
+      echo "❌ ISO management failed!"
+      exit 1
+    fi
     start_vm "$iso_path"
   '';
 }

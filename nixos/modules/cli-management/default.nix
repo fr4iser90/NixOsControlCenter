@@ -6,9 +6,17 @@ with lib;
 let
   cfg = config.cli-management;
   
+  # Define categories here instead of letting modules register them
+  defaultCategories = {
+    vm = "Virtual Machine Management";
+    net = "Network Management";
+    sys = "System Management";
+    # ... other categories
+  };
+  
   cliConfig = {
     prefix = cfg.prefix;
-    categories = cfg.categories;
+    categories = defaultCategories;  # Use predefined categories
   };
   
   cliTools = import ./lib/tools.nix { 
@@ -27,8 +35,8 @@ in {
 
     categories = mkOption {
       type = types.attrsOf types.str;
-      default = {};
-      description = "Command categories provided by modules";
+      default = defaultCategories;  # Use predefined categories as default
+      description = "Available command categories";
     };
 
     tools = mkOption {

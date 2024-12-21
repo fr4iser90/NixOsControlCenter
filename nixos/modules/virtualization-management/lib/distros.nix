@@ -17,7 +17,12 @@ let
     buildNumber = buildNumbers.${version} or "1.4"; # Fallback to latest known
   in "https://download.fedoraproject.org/pub/fedora/linux/releases/${version}/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-${version}-${buildNumber}.iso";
   mkArchUrl = { version ? null }: "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-x86_64.iso";
-  mkKaliUrl = { version }: "https://cdimage.kali.org/kali-${version}/kali-linux-${version}-installer-amd64.iso";
+  mkKaliUrl = { version }: 
+    let 
+      # Extrahiere das Jahr aus der Version (z.B. "2023" aus "2023.4")
+      year = lib.head (lib.splitString "." version);
+    in 
+    "https://cdimage.kali.org/${year}/kali-linux-${version}-installer-amd64.iso";
   mkPopUrl = { version }: "https://iso.pop-os.org//${version}/amd64/intel/pop-os_${version}_amd64_intel.iso";
   mkMintUrl = { version }: "https://mirrors.edge.kernel.org/linuxmint/stable/${version}/linuxmint-${version}-cinnamon-64bit.iso";
   mkZorinUrl = { version }: "https://mirrors.edge.kernel.org/zorinos/16/Zorin-OS-${version}-Core-64-bit.iso";
@@ -30,17 +35,17 @@ let
         plasma5 = {
           name = "KDE Plasma";
           getUrl = mkNixosUrl;
-          defaultVersion = "23.11";
+          defaultVersion = "24.05";
         };
         gnome = {
           name = "GNOME";
           getUrl = mkNixosUrl;
-          defaultVersion = "23.11";
+          defaultVersion = "24.05";
         };
         xfce = {
           name = "XFCE";
           getUrl = mkNixosUrl;
-          defaultVersion = "23.11";
+          defaultVersion = "24.05";
         };
       };
     };
