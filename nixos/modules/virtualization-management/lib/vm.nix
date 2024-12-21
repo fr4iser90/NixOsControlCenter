@@ -69,7 +69,8 @@ in
         -m ${toString memory} \
         -smp ${toString cores} \
         -cpu host \
-        -machine q35,accel=kvm \
+        -machine q35,accel=kvm,smm=on \
+        -global driver=cfi.pflash01,property=secure,value=on \
         -drive if=pflash,format=raw,readonly=on,file=${ovmf.fd}/FV/OVMF_CODE.fd \
         -drive if=pflash,format=raw,file="${vars_path}" \
         -vga qxl \
@@ -79,7 +80,7 @@ in
         -device virtio-net-pci,netdev=net0 \
         -netdev user,id=net0 \
         -drive file="${image.path}",if=virtio \
-        -boot order=dc \
+        -boot order=dc,menu=on \
         ''${qemu_args[@]+"''${qemu_args[@]}"}
     }
 
