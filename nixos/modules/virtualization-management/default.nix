@@ -6,12 +6,17 @@ let
   cfg = config.virtualisation.management;
 in {
   imports = [
-    (import ./testing/nixos-vm.nix { inherit config lib pkgs; })
+    (import ./testing { inherit config lib pkgs; })
   ];
 
   options.virtualisation.management = {
     enable = mkEnableOption "Virtualization Management";
     storage.enable = mkEnableOption "Storage Management for Virtualization";
+    stateDir = mkOption {
+      type = types.path;
+      default = "/var/lib/virt";
+      description = "Base directory for virtualization state";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -25,11 +30,33 @@ in {
         message = "CLI management must be enabled for virtualization management";
       }
     ];
-    
-    # Aktiviere die notwendigen Komponenten
+
+    # Base requirements
+    virtualisation.libvirtd.enable = true;
+    programs.virt-manager.enable = true;
+
+    # Base packages
+    environment.systemPackages = with pkgs; [
+      virt-manager
+      qemu
+      spice
+      spice-gtk
+      spice-protocol
+      win-virtio
+      OVMF
+    ];
+
+    # Base directory structure
+    systemd.tmpfiles.rules = [
+      "d ${cfg.stateDir} 0755 root root -"
+      "d ${cfg.stateDir}/images 0775 root libvirt -"
+      "d ${cfg.stateDir}/testing 0775 root libvirt -"
+    ];
+
+    # Enable components
     virtualisation.management.storage.enable = true;
 
-    # Registriere VM-Kategorie
-    cli-management.categories.vm = "Virtual Machine Management";
+    # Register VM category
+    
   };
 }

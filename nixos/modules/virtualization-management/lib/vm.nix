@@ -6,8 +6,8 @@ in
 {
   inherit (distros) distros validateDistro getDistroUrl;
 
-  mkVmScript = { name, memory, cores, image, distro ? "nixos", variant ? "plasma5", version ? null, ovmf ? pkgs.OVMF }: let
-    vars_path = "/var/lib/virt/testing/vars/${name}_VARS.fd";
+  mkVmScript = { name, memory, cores, image, distro ? "nixos", variant ? "plasma5", version ? null, stateDir ? "/var/lib/virt", ovmf ? pkgs.OVMF }: let
+    vars_path = "${stateDir}/testing/vars/${name}_VARS.fd";
     validVersion = distros.validateDistro distro variant version;
     isoUrl = distros.getDistroUrl distro variant validVersion;
     versionString = if validVersion == null then "latest" else validVersion;
@@ -23,7 +23,7 @@ in
     }
 
     function download_iso() {
-      local iso_dir="/var/lib/virt/testing/iso"
+      local iso_dir="${stateDir}/testing/iso"
       local iso_name="${distro}-${variant}-${versionString}.iso"
       local iso_path="$iso_dir/$iso_name"
       
