@@ -7,7 +7,7 @@ setup_homelab() {
     setup_homelab_config || return 1
 
     # 3. Deploy Docker before rebuilding
-    deploy_docker_config || return 1
+    # deploy_docker_config || return 1
     
     # 2. Deploy Config
     deploy_config
