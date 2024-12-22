@@ -157,6 +157,25 @@ update_homelab_config() {
     return 0
 }
 
+get_virt_password() {
+    local default_password="p4ssw0rd-$(openssl rand -hex 4)"
+    local password
+    
+    while true; do
+        read -esp $'\033[0;34m[?]\033[0m Enter virtualization user password'"${default_password:+ [press enter for random]}"': ' password
+        echo  # Neue Zeile nach der Passworteingabe
+        
+        password="${password:-$default_password}"
+        
+        # Mindestens 8 Zeichen, mind. 1 Großbuchstabe, 1 Kleinbuchstabe, 1 Zahl und 1 Sonderzeichen
+        if [[ "${#password}" -ge 8 && "$password" =~ [A-Z] && "$password" =~ [a-z] && "$password" =~ [0-9] && "$password" =~ [^[:alnum:]] ]]; then
+            echo "$password"
+            return 0
+        fi
+        log_error "Password must be at least 8 characters and contain uppercase, lowercase, numbers and special characters"
+    done
+}
+
 create_password_file() {
     # Debug output
     echo "Debug: Creating password file for user: ${virt_user}"
