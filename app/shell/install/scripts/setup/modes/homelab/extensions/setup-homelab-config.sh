@@ -156,7 +156,7 @@ create_password_file() {
     if ! command -v mkpasswd >/dev/null 2>&1; then
         log_error "mkpasswd command not found. Please install whois package."
         return 1
-    }
+    fi
 
     # Create password directory
     local password_dir="/etc/nixos/secrets/passwords/${virt_user}"
