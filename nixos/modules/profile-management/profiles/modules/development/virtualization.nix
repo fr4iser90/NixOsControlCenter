@@ -11,6 +11,7 @@
       
       # CLI Tools
       qemu          # QEMU selbst
+      spice-vdagent
       spice-gtk     # SPICE client libraries
       
       # Netzwerk Tools

@@ -16,11 +16,15 @@
       ];
     };
 
+    virtualisation.spiceUSBRedirection.enable = true;
+
     # Enable SPICE agent service
     services.spice-vdagentd = {
       enable = true;
       extraOptions = [ "-x" ];  # Enable clipboard sharing
     };
+    services.spice-webdavd.enable = true;
+    services.gvfs.enable = true;
     # Enable QXL and Virtio GPU support
     hardware.graphics = {
       enable = true;

@@ -12,6 +12,7 @@ in {
   config = mkIf cfg.enable {
     virtualisation = {
       libvirtd.enable = true;
+      libvirtd.allowedBridges = [ "virbr0" ];
       spiceUSBRedirection.enable = true;
     };
   };

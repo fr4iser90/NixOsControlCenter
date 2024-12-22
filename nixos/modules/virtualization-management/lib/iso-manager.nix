@@ -3,13 +3,29 @@
 let
   # Helper für ISO-Validierung
   validateIso = path: ''
-    if ! ${pkgs.file}/bin/file "${path}" | grep -i "ISO 9660\|DOS/MBR boot sector" > /dev/null; then
-      echo "Debug: ISO validation failed for ${path}" >&2
-      echo "File type: $(${pkgs.file}/bin/file "${path}")" >&2
-      return 1
-    fi
-    echo "Debug: ISO validation passed for ${path}" >&2
-    return 0
+    validate_iso() {
+      local path="$1"
+      echo "Debug: Checking ISO file: $path" >&2
+      
+      # Prüfe Datei-Existenz
+      if [ ! -f "$path" ]; then
+        echo "Debug: File not found: $path" >&2
+        return 1
+      fi
+      
+      # Zeige tatsächlichen Dateityp
+      local file_type=$(${pkgs.file}/bin/file "$path")
+      echo "Debug: File type detected: $file_type" >&2
+      
+      # Erweiterte Prüfung mit mehr Patterns
+      if echo "$file_type" | grep -iE "ISO DOS/MBR boot sector|x86 boot sector|bootable disk" > /dev/null; then
+        echo "Debug: ISO validation passed for $path" >&2
+        return 0
+      else
+        echo "Debug: ISO validation failed - unexpected file type" >&2
+        return 1
+      fi
+    }
   '';
 
   # Helper für Download mit Fortschrittsanzeige
