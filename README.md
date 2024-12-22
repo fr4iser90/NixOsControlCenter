@@ -1,6 +1,6 @@
 # NixOS Control Center
 
-A graphical tool for managing packages, configurations, and devices on NixOS systems.
+A tool for managing packages, configurations, and devices on NixOS systems.
 
 > ⚠️ EXPERIMENTAL: This project is under active development
 

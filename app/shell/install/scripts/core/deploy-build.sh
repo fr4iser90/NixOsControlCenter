@@ -71,8 +71,7 @@ deploy_base_config() {
 }
 
 show_standard_completion_message() {
-    log_success "Configuration deployed"
-    log_info "System will rebuild on next boot"
+    log_success "Configuration deployed, if u changed your account, please login again"
     log_info "Press Ctrl+D to exit the shell"
     return 0
 }
@@ -80,13 +79,14 @@ show_standard_completion_message() {
 show_homelab_completion_message() {
     local docker_script="${NIXOS_CONFIG_DIR}/deploy-docker-${hostname}.sh"
     
-    log_success "Setup complete!"
-    log_info "Please follow these steps:"
-    echo "1. Exit this shell (Ctrl+D)"
-    echo "2. Reboot the system"
-    echo "3. After reboot, run: $docker_script"
+    log_success "Building complete! Starting docker homelab setup..."
+    read -p "Do you want to switch to ${virt_user} user now? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        su - "${virt_user}"
+    fi
     
-    read -p "Press Enter to continue..."
+    return 0
     
     return 0
 }
