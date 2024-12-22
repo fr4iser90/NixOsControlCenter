@@ -34,6 +34,7 @@
   #
   # Desktop Environment
   #
+  enableDesktop = @ENABLE_DESKTOP@;
   desktop = "@DESKTOP@";
   displayManager = "@DISPLAY_MGR@";
   displayServer = "@DISPLAY_SERVER@";
