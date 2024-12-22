@@ -1,6 +1,6 @@
 #!/bin/bash
-
-BASE_DIR="/home/docker/docker/tarpit"
+source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/tarpit"
 ENV_FILE="grafana.env"
 
 # Function to prompt for username and password

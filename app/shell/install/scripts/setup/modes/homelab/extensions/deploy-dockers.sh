@@ -8,7 +8,7 @@ deploy_docker_config() {
     
     # Setup directories
     log_info "Setting up docker directories..."
-    DOCKER_HOME="/home/${VIRT_USER}/docker"
+    DOCKER_HOME="/home/${VIRT_USER}"
     
     # Backup if needed
     if [[ -d "$DOCKER_HOME" ]]; then
@@ -22,7 +22,7 @@ deploy_docker_config() {
     
     # Copy configurations
     log_info "Copying docker configuration..."
-    cp -r "${HOMELAB_DOCKER_DIR}/"* "$DOCKER_HOME/"
+    cp -r "${HOMELAB_DIR}/"* "$DOCKER_HOME/"
     
     # Set permissions
     log_info "Setting permissions..."
@@ -39,8 +39,8 @@ deploy_docker_config() {
     
     # Spezifische Traefik/Crowdsec Zertifikate
     local traefik_certs=(
-        "${DOCKER_HOME}/traefikCrowdsec/traefik/acme_letsencrypt.json"
-        "${DOCKER_HOME}/traefikCrowdsec/traefik/tls_letsencrypt.json"
+        "${DOCKER_HOME}/homelab/traefik-crowdsec/traefik/acme_letsencrypt.json"
+        "${DOCKER_HOME}/homelab/traefik-crowdsec/traefik/tls_letsencrypt.json"
     )
     
     for cert in "${traefik_certs[@]}"; do
@@ -72,8 +72,8 @@ validate_environment() {
     fi
 
     # Check docker config - this should still be an error
-    if [[ ! -d "${HOMELAB_DOCKER_DIR}" ]]; then
-        log_error "No Docker configuration found in ${HOMELAB_DOCKER_DIR}"
+    if [[ ! -d "${HOMELAB_DIR}" ]]; then
+        log_error "No Docker configuration found in ${HOMELAB_DIR}"
         return 1
     fi
     
@@ -88,4 +88,4 @@ export -f validate_environment
 
 
 # Check script execution
-check_script_execution "HOMELAB_DOCKER_DIR" "deploy_docker_config"
+check_script_execution "HOMELAB_DIR" "deploy_docker_config"

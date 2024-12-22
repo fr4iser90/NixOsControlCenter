@@ -1,6 +1,6 @@
 #!/bin/bash
-
-BASE_DIR="/home/docker/docker/traefikCrowdsec"
+source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/traefik-crowdsec"
 ENV_FILE="crowdsec.env"
 DNS_SCRIPT="dnsProvider.sh"
 

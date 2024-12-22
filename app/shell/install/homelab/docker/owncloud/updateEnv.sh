@@ -1,6 +1,9 @@
 #!/bin/bash
 
-BASE_DIR="/home/docker/docker/owncloud"
+source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/owncloud"
+
+
 ENV_FILE="mysql.env"
 
 # Function to generate a new MySQL root password using nix-shell and openssl

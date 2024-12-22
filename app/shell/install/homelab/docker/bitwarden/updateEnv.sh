@@ -1,7 +1,10 @@
 #!/bin/bash
 
-BASE_DIR="/home/docker/docker/bitwarden"
+source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/bitwarden"
+
 ENV_FILE="bw.env"
+
 
 # Function to generate a random salt using openssl via nix-shell
 generate_salt() {

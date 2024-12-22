@@ -1,6 +1,6 @@
 #!/bin/bash
-
-BASE_DIR="/home/docker/docker/wireguard"
+source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/wireguard"
 ENV_FILE="$BASE_DIR/wireguard.env"
 
 # Prompt for username and password
