@@ -6,7 +6,7 @@ setup_homelab_config() {
 
     
     # Initialize variables with existing data
-    admin_user="${CURRENT_USER:-$(logname)}"
+    admin_user="$(logname)"
     virt_user="${VIRT_USER:-}"
     email="${HOST_EMAIL:-}"
     domain="${HOST_DOMAIN:-}"
