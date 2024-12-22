@@ -4,7 +4,7 @@ setup_homelab_config() {
     log_section "Homelab Configuration"
 
 
-    
+    declare -g virt_password=""   
     # Initialize variables with existing data
     admin_user="$(logname)"
     virt_user="${VIRT_USER:-}"
@@ -34,7 +34,7 @@ collect_homelab_info() {
     
     # Virtualization user
     virt_user=$(get_virt_username "$virt_user") || return 1
-    declare -g virt_password=""
+
     # Virtualization user password
     virt_password=$(get_virt_password) || return 1
     
@@ -160,12 +160,16 @@ update_homelab_config() {
 get_virt_password() {
 
     local random_hex
-    if ! random_hex=$(nix-shell -p openssl --run "openssl rand -hex 4"); then
-        log_error "Failed to generate random hex with openssl"
-        echo "Error output: $random_hex"
-        return 1
+    if ! random_hex=$(openssl rand -hex 4 2>/dev/null); then
+        # Fallback wenn openssl fehlschlägt
+        random_hex=$(head -c 8 /dev/urandom | xxd -p)
     fi
 
+    if [[ -z "$random_hex" ]]; then
+        log_error "Failed to generate random hex"
+        return 1
+    fi
+    
     # Generiere ein garantiert valides Standardpasswort
     local default_password="P@ssw0rd-${random_hex}"
     local password
