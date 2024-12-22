@@ -4,7 +4,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source configuration
-source "$SCRIPT_DIR/lib/config.sh"
+source "$SCRIPT_DIR/config.sh"
 
 # Prevent running as root
 if [ "$EUID" -eq 0 ]; then

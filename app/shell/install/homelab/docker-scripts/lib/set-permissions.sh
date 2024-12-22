@@ -2,31 +2,27 @@
 
 # Get absolute path to script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/config.sh"
 
 # Function to set sensitive file permissions
 set_sensitive_permissions() {
-    log_info "Setting sensitive file permissions..."
+    echo "Setting sensitive file permissions..."
     
-    # Find and set permissions for sensitive files
-    find "$HOME/docker" \
-        -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" \) \
-        -exec chmod 600 {} \;
+    # Check if docker directory exists
+    if [ ! -d "$HOME/docker" ]; then
+        echo "Error: $HOME/docker does not exist!"
+        return 1
+    }
     
-    # Handle Traefik/Crowdsec certificates
-    local traefik_certs=(
-        "$HOME/docker/traefik-crowdsec/traefik/acme_letsencrypt.json"
-        "$HOME/docker/traefik-crowdsec/traefik/tls_letsencrypt.json"
-    )
+    # Reset to standard Unix permissions
+    echo "Resetting to standard permissions..."
+    chmod -R 755 "$HOME/docker"  # Directories executable
+    find "$HOME/docker" -type f -exec chmod 644 {} \;  # Files readable
+
+    # Protect sensitive files
+    echo "Protecting sensitive files..."
+    find "$HOME/docker" -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.json" \) -exec chmod 600 {} \;
     
-    for cert in "${traefik_certs[@]}"; do
-        if [[ -f "$cert" ]]; then
-            log_debug "Setting permissions for $cert"
-            chmod 600 "$cert"
-        fi
-    done
-    
-    log_success "Sensitive file permissions set successfully!"
+    echo "File permissions set successfully!"
     return 0
 }
 
