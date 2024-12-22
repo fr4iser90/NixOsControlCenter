@@ -6,11 +6,14 @@ setup_homelab_config() {
 
     
     # Initialize variables with existing data
-    admin_user="${CURRENT_USER:-${SUDO_USER:-$USER}}"
+    admin_user="${CURRENT_USER:-$(logname)}"
     virt_user="${VIRT_USER:-}"
     email="${HOST_EMAIL:-}"
     domain="${HOST_DOMAIN:-}"
     cert_email="${CERT_EMAIL:-}"
+    
+    # Optional: Debug output
+    echo "Debug: Admin user set to: ${admin_user}"
     
     # Collect homelab information
     collect_homelab_info || return 1
@@ -31,6 +34,9 @@ collect_homelab_info() {
     
     # Virtualization user
     virt_user=$(get_virt_username "$virt_user") || return 1
+    
+    # Virtualization user password
+    virt_password=$(get_virt_password) || return 1
     
     # Validate usernames
     if [[ "$admin_user" == "$virt_user" ]]; then
@@ -67,7 +73,7 @@ get_admin_username() {
 get_virt_username() {
     local default_user="$1"
     local username
-    read -ep $'\033[0;34m[?]\033[0m Enter virtualization username'"${default_user:+ [$default_user]}"': ' username
+    read -ep $'\033[0;34m[?]\033[0m Enter virtualization username(docker)'"${default_user:+ [$default_user]}"': ' username
     echo "${username:-${default_user:-docker}}"
 }
 
