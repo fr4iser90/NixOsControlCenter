@@ -165,7 +165,6 @@ update_companion_env() {
     shift
     local vars=("$@")
     
-    # Nur für Cloudflare ausführen
     if [[ "$provider" != "cloudflare" ]]; then
         return 0
     fi
@@ -180,64 +179,43 @@ update_companion_env() {
     fi
     
     echo "Updating Cloudflare companion env file..."
-    # Check if DOMAIN environment variable is set
     if [ -z "$DOMAIN" ]; then
       echo "DOMAIN environment variable is not set" >&2
       exit 1
     fi
 
-    # Variablen-Mapping für Cloudflare
     declare -A var_mapping=(
         ["CLOUDFLARE_API_EMAIL"]="CF_EMAIL"
         ["CLOUDFLARE_DNS_API_TOKEN"]="CF_TOKEN"
         ["DOMAIN_ZONE_ID"]="DOMAIN1_ZONE_ID"
     )
     
-    # Debug-Ausgabe
-    echo "Processing variables for Cloudflare companion:"
-    
-    # TARGET_DOMAIN zuerst setzen
-    echo "DEBUG: Trying to set TARGET_DOMAIN"
     if [ -f "$companion_env" ]; then
         grep -v "^TARGET_DOMAIN=" "$companion_env" > "$companion_env.tmp" || true
         mv "$companion_env.tmp" "$companion_env"
     fi
     echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
-    echo "DEBUG: TARGET_DOMAIN has been set"
     
-    # Kopiere und wandle die Werte um
     for var in "${vars[@]}"; do
-        echo "DEBUG: Processing $var"
         if [ -f "$BASE_DIR/$ENV_FILE" ]; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2 || echo "")
             if [ -n "$value" ]; then
-                echo "DEBUG: Found value for $var: $value"
-                
-                # Wenn es ein Mapping gibt, nutze den neuen Namen
                 if [ -n "${var_mapping[$var]}" ]; then
                     new_var="${var_mapping[$var]}"
-                    echo "DEBUG: Mapping $var to $new_var"
                     
-                    # Entferne alte Einträge
                     if [ -f "$companion_env" ]; then
                         grep -v "^$new_var=" "$companion_env" > "$companion_env.tmp" || true
                         mv "$companion_env.tmp" "$companion_env"
                     fi
                     
-                    # Füge neuen Eintrag hinzu
                     echo "$new_var=$value" >> "$companion_env"
-                    echo "DEBUG: Added $new_var=$value"
                 fi
-            else
-                echo "DEBUG: No value found for $var"
             fi
         else
-            echo "DEBUG: ENV_FILE not found: $BASE_DIR/$ENV_FILE"
+            echo "ENV_FILE not found: $BASE_DIR/$ENV_FILE" >&2
+            exit 1
         fi
     done
-    
-    echo "DEBUG: Final content of $companion_env:"
-    cat "$companion_env"
 }
 
 # Main execution
