@@ -11,7 +11,7 @@ set_sensitive_permissions() {
     if [ ! -d "$HOME/docker" ]; then
         echo "Error: $HOME/docker does not exist!"
         return 1
-    }
+    fi
     
     # Reset to standard Unix permissions
     echo "Resetting to standard permissions..."

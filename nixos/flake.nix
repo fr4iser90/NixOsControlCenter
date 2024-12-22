@@ -37,6 +37,9 @@
       ./modules/profile-management
       ./modules/desktop-management
       ./modules/system-management
+
+      # Homelab management
+      ./modules/homelab-management
     ];
 
 
