@@ -6,9 +6,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       qemu
-      virt-manager
       spice-gtk
-      win-virtio
       OVMF
     ];
   };

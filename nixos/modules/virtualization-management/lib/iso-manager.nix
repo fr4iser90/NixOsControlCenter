@@ -7,9 +7,9 @@ let
       local path="$1"
       echo "Debug: Checking ISO file: $path" >&2
       
-      # Prüfe Datei-Existenz
-      if [ ! -f "$path" ]; then
-        echo "Debug: File not found: $path" >&2
+      # Prüfe Datei-Existenz und Größe
+      if [ ! -f "$path" ] || [ ! -s "$path" ]; then
+        echo "Debug: File not found or empty: $path" >&2
         return 1
       fi
       
@@ -18,7 +18,7 @@ let
       echo "Debug: File type detected: $file_type" >&2
       
       # Erweiterte Prüfung mit mehr Patterns
-      if echo "$file_type" | grep -iE "ISO DOS/MBR boot sector|x86 boot sector|bootable disk" > /dev/null; then
+      if echo "$file_type" | grep -iE "ISO 9660|ISO DOS/MBR boot sector|x86 boot sector|bootable disk" > /dev/null; then
         echo "Debug: ISO validation passed for $path" >&2
         return 0
       else

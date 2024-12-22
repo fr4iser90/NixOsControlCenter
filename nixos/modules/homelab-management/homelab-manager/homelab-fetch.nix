@@ -17,13 +17,7 @@ let
     RED='\033[0;31m'
     NC='\033[0m'
     
-    # Prüfe System-Typ
-    if ! grep -q 'systemType = "homelab"' "$CONFIG_FILE"; then
-      echo -e "''${RED}Error: This system is not configured as homelab''${NC}"
-      echo -e "''${YELLOW}Current configuration in $CONFIG_FILE:''${NC}"
-      grep 'systemType = ' "$CONFIG_FILE"
-      exit 1
-    fi
+
     
     # Prüfe ob User virtualization Rolle hat
     if ! groups | grep -q "docker"; then

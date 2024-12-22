@@ -101,6 +101,8 @@ in {
         render = {};
         input = {};
         seat = {};
+        libvirtd = {};
+        kvm = {};
       }
       # Erstelle Gruppen für jeden Benutzer
       (lib.mapAttrs (name: _: {}) systemConfig.users)

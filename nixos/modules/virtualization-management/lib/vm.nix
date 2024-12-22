@@ -30,7 +30,14 @@ in
         echo "  Creating new ${toString image.size}GB disk..."
         mkdir -p "$(dirname "${image.path}")"
         ${pkgs.qemu}/bin/qemu-img create -f qcow2 "${image.path}" ${toString image.size}G
-        chown root:libvirt "${image.path}"
+        
+        # Setze Berechtigungen basierend auf existierenden Gruppen
+        if getent group libvirtd > /dev/null; then
+          chown $USER:libvirtd "${image.path}"
+        else
+          chown $USER:kvm "${image.path}"
+        fi
+        
         chmod 664 "${image.path}"
         echo "  Disk created!"
       else
@@ -83,6 +90,7 @@ in
         -boot order=dc,menu=on \
         ''${qemu_args[@]+"''${qemu_args[@]}"}
     }
+
 
     # Main
     echo "🖥️  NixOS Test VM Setup"

@@ -32,18 +32,26 @@ in {
     ];
 
     # Base requirements
-    virtualisation.libvirtd.enable = true;
+    virtualisation = {
+      libvirtd.enable = true;
+  #    libvirtd.qemu.enable = true;
+  #    libvirtd.qemu.package = pkgs.qemu_kvm;
+      libvirtd.allowedBridges = [ "virbr0" ];
+      spiceUSBRedirection.enable = true;
+    };
+
+
     programs.virt-manager.enable = true;
 
     # Base packages
     environment.systemPackages = with pkgs; [
-      virt-manager
       qemu
+      virt-manager
       spice
       spice-gtk
       spice-protocol
-      win-virtio
-      OVMF
+ #     OVMF
+      swtpm
     ];
 
     # Base directory structure
