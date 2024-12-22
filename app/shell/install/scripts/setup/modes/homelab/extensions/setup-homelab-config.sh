@@ -52,6 +52,7 @@ collect_homelab_info() {
         return 1
     fi
     
+    HOMELAB_DIR="/home/${virt_user}/docker"
     # Email configuration
     email=$(get_email "$email") || return 1
     
@@ -363,8 +364,8 @@ update_system_type() {
 }
 
 update_domain_information() {
-    if [[ ! -d "$DOCKER_HOME" ]]; then
-        log_error "Docker home directory not found: $DOCKER_HOME"
+    if [[ ! -d "$HOMELAB_DIR" ]]; then
+        log_error "Docker home directory not found: $HOMELAB_DIR"
         return 1
     fi
 
@@ -372,7 +373,7 @@ update_domain_information() {
     sleep 1
     
     # Update configuration files
-    find "$DOCKER_HOME" \
+    find "$HOMELAB_DIR" \
         -type f \( -name "*.yml" -o -name "*.env" \) \
         -exec sed -i \
             -e "s|{{EMAIL}}|${HOMELAB_EMAIL}|g" \
@@ -383,11 +384,12 @@ update_domain_information() {
     
     log_success "Docker configuration files updated successfully!"
     return 0
-}
+} 
 
 
 export_homelab_vars() {
     export SYSTEM_TYPE="homelab"
+    export HOMELAB_DIR
     export ADMIN_USER="$admin_user"
     export VIRT_USER="$virt_user"
     export HOMELAB_EMAIL="$email"
