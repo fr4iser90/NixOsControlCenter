@@ -105,6 +105,7 @@ init_users_block() {
 init_desktop_env() {
     log_debug "Updating desktop environment..."
     sed -i \
+        -e "s|@ENABLE_DESKTOP@|true|" \
         -e "s|@DESKTOP@|plasma|" \
         -e "s|@DISPLAY_MGR@|sddm|" \
         -e "s|@DISPLAY_SERVER@|wayland|" \

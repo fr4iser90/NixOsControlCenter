@@ -34,6 +34,7 @@
   #
   # Desktop Environment
   #
+  enableDesktop     = @ENABLE_DESKTOP@;
   desktop           = "@DESKTOP@";           # [plasma/gnome/xfce]
   displayManager    = "@DISPLAY_MGR@";       # [sddm/gdm/lightdm]
   displayServer     = "@DISPLAY_SERVER@";    # [wayland/x11/hybrid]
