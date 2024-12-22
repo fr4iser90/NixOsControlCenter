@@ -174,16 +174,18 @@ get_virt_password() {
     local default_password="P@ssw0rd-${random_hex}"
     local password
     
-    log_info "----------------------------------------"
-    log_info "IMPORTANT PASSWORD INFORMATION"
-    log_info "----------------------------------------"
-    log_info "Random password will be: $default_password"
-    log_info ""
-    log_info "!!! PLEASE NOTE !!!"
-    log_info "1. Change this password after first login!"
-    log_info "2. Password file location: /etc/nixos/secrets/passwords/${virt_user}/.hashedPassword"
-    log_info "3. Password Manager will be implemented soon"
-    log_info "----------------------------------------"
+    echo -e "\033[0;36m----------------------------------------\033[0m"
+    echo -e "\033[0;36mIMPORTANT PASSWORD INFORMATION\033[0m"
+    echo -e "\033[0;36m----------------------------------------\033[0m"
+    echo -e "\033[0;36mRandom password will be: $default_password\033[0m"
+    echo -e "\033[0;36m\033[0m"
+    echo -e "\033[0;36m!!! PLEASE NOTE !!!\033[0m"
+    echo -e "\033[0;36m1. Change this password after first login!\033[0m"
+    echo -e "\033[0;36m2. Password file location: /etc/nixos/secrets/passwords/${virt_user}/.hashedPassword\033[0m"
+    echo -e "\033[0;36m3. Password Manager will be implemented soon\033[0m"
+    echo -e "\033[0;36m----------------------------------------\033[0m"
+
+    sleep 1
     
     while true; do
         read -esp $'\033[0;34m[?]\033[0m Enter custom password (or press enter for random): ' password
