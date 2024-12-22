@@ -29,26 +29,6 @@ deploy_docker_config() {
     chown -R "${VIRT_USER}:${VIRT_USER}" "$DOCKER_HOME"
     chmod -R 755 "$DOCKER_HOME"
     
-    # Set sensitive file permissions
-    log_info "Setting sensitive file permissions..."
-    
-    # Allgemeine sensitive Dateien
-    find "$DOCKER_HOME" \
-        -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" \) \
-        -exec chmod 600 {} \;
-    
-    # Spezifische Traefik/Crowdsec Zertifikate
-    local traefik_certs=(
-        "${DOCKER_HOME}/homelab/traefik-crowdsec/traefik/acme_letsencrypt.json"
-        "${DOCKER_HOME}/homelab/traefik-crowdsec/traefik/tls_letsencrypt.json"
-    )
-    
-    for cert in "${traefik_certs[@]}"; do
-        if [[ -f "$cert" ]]; then
-            log_debug "Setting permissions for $cert"
-            chmod 600 "$cert"
-        fi
-    done
     
     # Update configuration files
     log_info "Updating configuration files..."

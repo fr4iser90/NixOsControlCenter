@@ -3,7 +3,7 @@
 # Get the absolute path to the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Get parent directory of docker-scripts
-BASE_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+BASE_DIR="${HOME}"
 
 # Base paths relative to where the script actually is
 export DOCKER_BASE_DIR="${BASE_DIR}/docker"

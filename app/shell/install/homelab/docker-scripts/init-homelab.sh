@@ -21,6 +21,13 @@ if ! groups | grep -q docker; then
     exit 1
 fi
 
+# Set permissions
+echo "Setting permissions..."
+if ! bash "$SCRIPT_DIR/lib/set-permissions.sh"; then
+    echo "Failed to set permissions. Exiting."
+    exit 1
+fi
+
 # Initialize security infrastructure (Traefik & CrowdSec)
 echo "Initializing security infrastructure..."
 if ! bash "$SCRIPT_DIR/lib/init-firewall.sh"; then
