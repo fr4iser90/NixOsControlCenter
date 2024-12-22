@@ -294,3 +294,4 @@ export -f update_email_domain
 export -f update_system_type
 export -f export_homelab_vars
 export -f create_password_file
+export -f get_virt_password
