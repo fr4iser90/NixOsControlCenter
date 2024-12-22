@@ -16,7 +16,10 @@ deploy_docker_config() {
         log_info "Creating backup at $BACKUP"
         mv "$DOCKER_HOME" "$BACKUP"
     fi
-        
+    
+    # Create directory structure
+    mkdir -p "$DOCKER_HOME"/{compose,data,config}
+    
     # Copy configurations
     log_info "Copying docker configuration..."
     cp -r "${HOMELAB_DIR}/"* "$DOCKER_HOME/"
