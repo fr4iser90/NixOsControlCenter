@@ -60,13 +60,16 @@ deploy_base_config() {
 
     # Build and switch
     log_info "Building system..."
+    log_success "Build system..."
     nixos-rebuild switch --flake /etc/nixos#$(hostname)
 
+
+    # BREAKPOINT HERE!
     # Cleanup
     log_info "Cleaning up..."
     rm -rf "$nixos_dir"
     
-    log_success "Build complete!"
+    log_success "Build complete!"    #  
     return 0
 }
 

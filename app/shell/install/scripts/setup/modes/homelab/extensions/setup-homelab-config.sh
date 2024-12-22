@@ -283,13 +283,13 @@ update_users_homelab_block() {
         print "    \"" admin_user "\" = {";
         print "      role = \"admin\";";
         print "      defaultShell = \"zsh\";";
-        print "      autoLogin = true;";
+        print "      autoLogin = false;";
         print "    };";
         if (virt_user != "") {
             print "    \"" virt_user "\" = {";
             print "      role = \"virtualization\";";
             print "      defaultShell = \"zsh\";";
-            print "      autoLogin = false;";
+            print "      autoLogin = true;";
             print "    };";
         }
         print "  };";
