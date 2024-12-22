@@ -26,7 +26,7 @@
   export MODES_DESKTOP_DIR="$MODES_DIR/desktop"
   export MODES_SERVER_DIR="$MODES_DIR/server"
   export MODES_HOMELAB_DIR="$MODES_DIR/homelab"
-  export HOMELAB_DIR="$INSTALL_ROOT/app/shell/install/HOMELAB"
+  export HOMELAB_DIR="$INSTALL_ROOT/app/shell/install/homelab"
   
   export CONFIG_DIR="$SETUP_DIR/config"
   # System Paths
