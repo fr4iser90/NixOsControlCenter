@@ -6,7 +6,7 @@ setup_homelab_config() {
 
     
     # Initialize variables with existing data
-    admin_user="${CURRENT_USER:-$(whoami)}"
+    admin_user="${CURRENT_USER:-${SUDO_USER:-$USER}}"
     virt_user="${VIRT_USER:-}"
     email="${HOST_EMAIL:-}"
     domain="${HOST_DOMAIN:-}"
@@ -152,23 +152,37 @@ update_homelab_config() {
 }
 
 create_password_file() {
+    # Debug output
+    echo "Debug: Creating password file for user: ${virt_user}"
+    
+    # Check if password is set
+    if [[ -z "${virt_password}" ]]; then
+        log_error "No password set for virtualization user"
+        return 1
+    fi
+
     # Check if mkpasswd is available
     if ! command -v mkpasswd >/dev/null 2>&1; then
-        log_error "mkpasswd command not found. Please install whois package."
-        return 1
+        log_error "mkpasswd command not found. Installing whois package..."
+        if ! sudo nix-env -iA nixos.whois; then
+            log_error "Failed to install whois package"
+            return 1
+        fi
     fi
 
     # Create password directory
     local password_dir="/etc/nixos/secrets/passwords/${virt_user}"
+    echo "Debug: Creating directory: ${password_dir}"
     if ! sudo mkdir -p "${password_dir}"; then
-        log_error "Failed to create password directory"
+        log_error "Failed to create password directory: ${password_dir}"
         return 1
     fi
 
     # Hash password and save to file
     local password_file="${password_dir}/.hashedPassword"
-    if ! mkpasswd -m sha-512 "${virt_password}" | sudo tee "${password_file}" > /dev/null; then
-        log_error "Failed to create password hash file"
+    echo "Debug: Creating password file: ${password_file}"
+    if ! echo "${virt_password}" | mkpasswd -m sha-512 --stdin | sudo tee "${password_file}" > /dev/null; then
+        log_error "Failed to create password hash file: ${password_file}"
         return 1
     fi
 
@@ -183,7 +197,7 @@ create_password_file() {
         return 1
     fi
 
-    log_success "Password file created successfully"
+    log_success "Password file created successfully at ${password_file}"
     return 0
 }
 
