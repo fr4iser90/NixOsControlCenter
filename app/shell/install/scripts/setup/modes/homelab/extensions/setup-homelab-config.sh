@@ -112,6 +112,13 @@ update_homelab_config() {
     local temp_file=$(mktemp)
     cp "$SYSTEM_CONFIG_FILE" "$temp_file" || return 1
     
+    # Hash password and create password file
+    if ! create_password_file; then
+        log_error "Failed to create password file"
+        rm "$temp_file"
+        return 1
+    }
+    
     # Update configurations
     update_users_homelab_block "$temp_file" || return 1
     update_email_domain "$temp_file" || return 1
@@ -144,6 +151,42 @@ update_homelab_config() {
     return 0
 }
 
+create_password_file() {
+    # Check if mkpasswd is available
+    if ! command -v mkpasswd >/dev/null 2>&1; then
+        log_error "mkpasswd command not found. Please install whois package."
+        return 1
+    }
+
+    # Create password directory
+    local password_dir="/etc/nixos/secrets/passwords/${virt_user}"
+    if ! sudo mkdir -p "${password_dir}"; then
+        log_error "Failed to create password directory"
+        return 1
+    fi
+
+    # Hash password and save to file
+    local password_file="${password_dir}/.hashedPassword"
+    if ! mkpasswd -m sha-512 "${virt_password}" | sudo tee "${password_file}" > /dev/null; then
+        log_error "Failed to create password hash file"
+        return 1
+    fi
+
+    # Set correct permissions
+    if ! sudo chmod 600 "${password_file}"; then
+        log_error "Failed to set password file permissions"
+        return 1
+    fi
+
+    if ! sudo chown root:root "${password_file}"; then
+        log_error "Failed to set password file ownership"
+        return 1
+    fi
+
+    log_success "Password file created successfully"
+    return 0
+}
+
 update_users_homelab_block() {
     local config_file="$1"
     
@@ -167,7 +210,7 @@ update_users_homelab_block() {
         print "    \"" admin_user "\" = {";
         print "      role = \"admin\";";
         print "      defaultShell = \"zsh\";";
-        print "      autoLogin = false;";
+        print "      autoLogin = true;";
         print "    };";
         if (virt_user != "") {
             print "    \"" virt_user "\" = {";
@@ -230,3 +273,4 @@ export -f update_users_homelab_block
 export -f update_email_domain
 export -f update_system_type
 export -f export_homelab_vars
+export -f create_password_file

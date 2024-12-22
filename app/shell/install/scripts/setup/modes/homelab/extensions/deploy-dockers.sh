@@ -31,9 +31,24 @@ deploy_docker_config() {
     
     # Set sensitive file permissions
     log_info "Setting sensitive file permissions..."
+    
+    # Allgemeine sensitive Dateien
     find "$DOCKER_HOME" \
         -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" \) \
         -exec chmod 600 {} \;
+    
+    # Spezifische Traefik/Crowdsec Zertifikate
+    local traefik_certs=(
+        "${DOCKER_HOME}/traefikCrowdsec/traefik/acme_letsencrypt.json"
+        "${DOCKER_HOME}/traefikCrowdsec/traefik/tls_letsencrypt.json"
+    )
+    
+    for cert in "${traefik_certs[@]}"; do
+        if [[ -f "$cert" ]]; then
+            log_debug "Setting permissions for $cert"
+            chmod 600 "$cert"
+        fi
+    done
     
     # Update configuration files
     log_info "Updating configuration files..."

@@ -3,9 +3,12 @@
 let
   # Helper für ISO-Validierung
   validateIso = path: ''
-    if ! ${pkgs.file}/bin/file "${path}" | grep -i "ISO 9660" > /dev/null; then
+    if ! ${pkgs.file}/bin/file "${path}" | grep -i "ISO 9660\|DOS/MBR boot sector" > /dev/null; then
+      echo "Debug: ISO validation failed for ${path}" >&2
+      echo "File type: $(${pkgs.file}/bin/file "${path}")" >&2
       return 1
     fi
+    echo "Debug: ISO validation passed for ${path}" >&2
     return 0
   '';
 
@@ -40,9 +43,10 @@ in {
       if [ -f "$iso_path" ]; then
         echo "Validating existing ISO..." >&2
         if ! validate_iso "$iso_path"; then
-          echo "❌ Existing ISO is corrupt, re-downloading..." >&2
+          echo "❌ Existing ISO validation failed, details above" >&2
           rm -f "$iso_path"
         else
+          echo "✓ Existing ISO is valid" >&2
           printf '%s' "$iso_path"
           return 0
         fi
