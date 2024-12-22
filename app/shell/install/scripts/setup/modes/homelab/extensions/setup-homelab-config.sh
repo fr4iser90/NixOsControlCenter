@@ -36,7 +36,7 @@ collect_homelab_info() {
     virt_user=$(get_virt_username "$virt_user") || return 1
 
     # Virtualization user password
-    virt_password=$(get_virt_password) || return 1
+    virt_password=$(get_virt_password)  || return 1
     
     # Validate usernames
     if [[ "$admin_user" == "$virt_user" ]]; then
@@ -169,21 +169,21 @@ get_virt_password() {
         log_error "Failed to generate random hex"
         return 1
     fi
-    
+
     # Generiere ein garantiert valides Standardpasswort
     local default_password="P@ssw0rd-${random_hex}"
     local password
     
-    echo "----------------------------------------"
-    echo "IMPORTANT PASSWORD INFORMATION"
-    echo "----------------------------------------"
-    echo "Random password will be: $default_password"
-    echo ""
-    echo "!!! PLEASE NOTE !!!"
-    echo "1. Change this password after first login!"
-    echo "2. Password file location: /etc/nixos/secrets/passwords/${virt_user}/.hashedPassword"
-    echo "3. Password Manager will be implemented soon"
-    echo "----------------------------------------"
+    log_info "----------------------------------------"
+    log_info "IMPORTANT PASSWORD INFORMATION"
+    log_info "----------------------------------------"
+    log_info "Random password will be: $default_password"
+    log_info ""
+    log_info "!!! PLEASE NOTE !!!"
+    log_info "1. Change this password after first login!"
+    log_info "2. Password file location: /etc/nixos/secrets/passwords/${virt_user}/.hashedPassword"
+    log_info "3. Password Manager will be implemented soon"
+    log_info "----------------------------------------"
     
     while true; do
         read -esp $'\033[0;34m[?]\033[0m Enter custom password (or press enter for random): ' password
