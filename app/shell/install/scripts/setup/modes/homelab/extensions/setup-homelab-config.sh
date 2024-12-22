@@ -52,7 +52,6 @@ collect_homelab_info() {
         return 1
     fi
     
-    HOMELAB_DIR="/home/${virt_user}/docker"
     # Email configuration
     email=$(get_email "$email") || return 1
     
@@ -389,7 +388,6 @@ update_domain_information() {
 
 export_homelab_vars() {
     export SYSTEM_TYPE="homelab"
-    export HOMELAB_DIR
     export ADMIN_USER="$admin_user"
     export VIRT_USER="$virt_user"
     export HOMELAB_EMAIL="$email"
