@@ -190,7 +190,7 @@ update_companion_env() {
     declare -A var_mapping=(
         ["CLOUDFLARE_API_EMAIL"]="CF_EMAIL"
         ["CLOUDFLARE_DNS_API_TOKEN"]="CF_TOKEN"
-        ["DOMAIN_ZONE_ID"]="DOMAIN_ZONE_ID1"
+        ["DOMAIN_ZONE_ID"]="DOMAIN1_ZONE_ID"
     )
     
     # Debug-Ausgabe
