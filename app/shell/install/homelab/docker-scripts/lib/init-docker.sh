@@ -48,7 +48,8 @@ done
 echo "Docker initialization completed successfully."
 echo
 echo "You can now access the following services:"
-echo "- Portainer: http://localhost:9000"
+echo "- Portainer: https://portainer.${DOMAIN}"
+echo "- Plex: https://plex.${DOMAIN}"
 echo "- Organizr: https://organizer.${DOMAIN}"
 echo "- OwnCloud: https://owncloud.${DOMAIN}"
 echo

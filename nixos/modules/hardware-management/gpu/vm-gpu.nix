@@ -5,7 +5,9 @@
     # Basic display server configuration
     services.xserver = {
       enable = true;
-      
+      displayManager.sessionCommands = ''
+        ${pkgs.spice-vdagent}/bin/spice-vdagent
+      '';
       # Set appropriate video driver based on detection
       videoDrivers = [
         "qxl"

@@ -176,7 +176,7 @@ update_companion_env() {
     if [[ ! -f "$companion_env" ]]; then
         echo "Cloudflare companion env file not found at $companion_env"
         return 1
-    }
+    fi
     
     echo "Also updating Cloudflare companion env file..."
     
