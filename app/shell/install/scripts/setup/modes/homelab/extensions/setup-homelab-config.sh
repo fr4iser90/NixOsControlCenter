@@ -117,7 +117,7 @@ update_homelab_config() {
         log_error "Failed to create password file"
         rm "$temp_file"
         return 1
-    }
+    fi
     
     # Update configurations
     update_users_homelab_block "$temp_file" || return 1
