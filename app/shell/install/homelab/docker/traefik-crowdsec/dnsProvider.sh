@@ -31,8 +31,7 @@ providers=(
     "Civo civo CIVO_TOKEN"
     "Cloud.ru cloudru CLOUDRU_SERVICE_INSTANCE_ID CLOUDRU_KEY_ID CLOUDRU_SECRET"
     "CloudDNS clouddns CLOUDDNS_CLIENT_ID CLOUDDNS_EMAIL CLOUDDNS_PASSWORD"
-    "Cloudflare cloudflare CLOUDFLARE_API_EMAIL CLOUDFLARE_API_KEY CLOUDFLARE_DNS_API_TOKEN CLOUDFLARE_ZONE_API_TOKEN"
-    "ClouDNS cloudns CLOUDNS_AUTH_ID CLOUDNS_AUTH_PASSWORD"
+    "Cloudflare cloudflare CLOUDFLARE_API_EMAIL CLOUDFLARE_DNS_API_TOKEN CLOUDFLARE_ZONE_API_TOKEN"
     "CloudXNS cloudxns CLOUDXNS_API_KEY CLOUDXNS_SECRET_KEY"
     "ConoHa conoha CONOHA_TENANT_ID CONOHA_API_USERNAME CONOHA_API_PASSWORD"
     "Constellix constellix CONSTELLIX_API_KEY CONSTELLIX_SECRET_KEY"
@@ -161,17 +160,70 @@ update_env_file() {
   fi
 }
 
+update_companion_env() {
+    local provider="$1"
+    shift
+    local vars=("$@")
+    
+    # Nur für Cloudflare ausführen
+    if [[ "$provider" != "cloudflare" ]]; then
+        return 0
+    }
+    
+    local companion_dir="$DOCKER_BASE_DIR/cloudflare-traefik-companion"
+    local companion_env="$companion_dir/cloudflare.env"
+    
+    if [[ ! -f "$companion_env" ]]; then
+        echo "Cloudflare companion env file not found at $companion_env"
+        return 1
+    }
+    
+    echo "Also updating Cloudflare companion env file..."
+    
+    # Variablen-Mapping für Cloudflare
+    declare -A var_mapping=(
+        ["CLOUDFLARE_EMAIL"]="CF_EMAIL"
+        ["CLOUDFLARE_DNS_API_TOKEN"]="CF_TOKEN"
+    )
+    
+    # Kopiere und wandle die Werte um
+    for var in "${vars[@]}"; do
+        if grep -q "^$var=" "$BASE_DIR/$ENV_FILE"; then
+            value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2)
+            
+            # Wenn es ein Mapping gibt, nutze den neuen Namen
+            if [[ -n "${var_mapping[$var]}" ]]; then
+                new_var="${var_mapping[$var]}"
+                sed -i "/^$new_var=/d" "$companion_env"
+                echo "$new_var=$value" >> "$companion_env"
+            fi
+        fi
+    done
+}
 # Main execution
 selected=$(printf "%s\n" "${providers[@]}" | fzf --prompt="Select your DNS provider: " --delimiter=" ")
 
 if [ -n "$selected" ]; then
-  provider_name=$(echo "$selected" | awk '{print $1}')
-  provider_code=$(echo "$selected" | awk '{print $2}')
-  vars=$(echo "$selected" | awk '{for(i=3;i<=NF;i++) printf $i " "; print ""}')
-  update_env_file "$provider_code" $vars
+    provider_name=$(echo "$selected" | awk '{print $1}')
+    provider_code=$(echo "$selected" | awk '{print $2}')
+    vars=$(echo "$selected" | awk '{for(i=3;i<=NF;i++) printf $i " "; print ""}')
+    
+    # Update traefik env
+    update_env_file "$provider_code" $vars
+    
+    # Update companion env if cloudflare
+    update_companion_env "$provider_code" $vars
+    
+    echo "Traefik environment file has been updated with $provider_name provider."
+    if [[ "$provider_code" == "cloudflare" ]]; then
+        echo "Cloudflare companion environment file has also been updated."
+    fi
 else
-  echo "No provider selected. Exiting."
-  exit 1
+    echo "No provider selected. Exiting."
+    exit 1
 fi
 
+
+
 echo "Traefik environment file has been updated with $provider_name provider."
+   

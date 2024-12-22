@@ -1,11 +1,11 @@
 { config, lib, pkgs, systemConfig, ... }:
 {
-  imports = [ 
-      ./display-managers
-      ./display-servers
-      ./environments
-#      ./themes
-    ];
+  imports = if systemConfig.enableDesktop then [ 
+    ./display-managers
+    ./display-servers
+    ./environments
+    #./themes
+  ] else [];
 
   # Globale Tastaturkonfiguration für alle Display-Server
   console.keyMap = systemConfig.keyboardLayout;

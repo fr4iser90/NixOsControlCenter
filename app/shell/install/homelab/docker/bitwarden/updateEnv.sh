@@ -1,6 +1,6 @@
 #!/bin/bash
-
-source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../docker-scripts/lib/config.sh"
 BASE_DIR="$DOCKER_BASE_DIR/bitwarden"
 
 ENV_FILE="bw.env"
@@ -71,7 +71,6 @@ update_env_file() {
     for entry in "${new_values[@]}"; do
       local key="${entry%%:*}"
       local value="${entry#*:}"
-      echo "Running: sed -i \"s|^$key=.*|$key=$value|\" \"$BASE_DIR/$ENV_FILE\""  # Debug print
       sed -i "s|^$key=.*|$key=$value|" "$BASE_DIR/$ENV_FILE"
     done
   else

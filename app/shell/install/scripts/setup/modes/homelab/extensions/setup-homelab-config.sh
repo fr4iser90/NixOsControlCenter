@@ -11,7 +11,8 @@ setup_homelab_config() {
     email="${HOST_EMAIL:-}"
     domain="${HOST_DOMAIN:-}"
     cert_email="${CERT_EMAIL:-}"
-    
+     enable_desktop="${ENABLE_DESKTOP:-true}" 
+
     # Optional: Debug output
     echo "Debug: Admin user set to: ${admin_user}"
     
@@ -57,6 +58,9 @@ collect_homelab_info() {
     # SSL cert email
     cert_email=$(get_cert_email "$email" "$cert_email") || return 1
     
+    # Desktop configuration
+    enable_desktop=$(get_desktop_enabled "$enable_desktop") || return 1  # <- HIER
+
     return 0
 }
 
@@ -258,6 +262,38 @@ create_password_file() {
 
     log_success "Password file created successfully at ${password_file}"
     return 0
+}
+
+get_desktop_enabled() {
+    local default_enabled="${1:-true}"
+    local response
+    
+    while true; do
+        read -ep $'\033[0;34m[?]\033[0m Enable desktop environment? (y/n)'"${default_enabled:+ [Y]}"': ' response
+        response="${response:-${default_enabled}}"
+        
+        case "${response,,}" in
+            y|yes|true)
+                echo "true"
+                return 0
+                ;;
+            n|no|false)
+                echo "false"
+                return 0
+                ;;
+            *)
+                log_error "Please answer yes or no"
+                ;;
+        esac
+    done
+}
+
+update_desktop_enabled() {
+    local config_file="$1"
+    local enabled="$2"
+    
+    sed -i "s/enableDesktop = .*\;/enableDesktop = ${enable_desktop};/" "$config_file"
+
 }
 
 update_users_homelab_block() {

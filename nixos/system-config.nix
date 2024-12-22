@@ -43,6 +43,7 @@
   #
   # Desktop Environment
   #
+  enableDesktop = true;
   desktop = "plasma";
   displayManager = "sddm";
   displayServer = "wayland";
