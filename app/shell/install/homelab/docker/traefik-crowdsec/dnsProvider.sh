@@ -31,7 +31,7 @@ providers=(
     "Civo civo CIVO_TOKEN"
     "Cloud.ru cloudru CLOUDRU_SERVICE_INSTANCE_ID CLOUDRU_KEY_ID CLOUDRU_SECRET"
     "CloudDNS clouddns CLOUDDNS_CLIENT_ID CLOUDDNS_EMAIL CLOUDDNS_PASSWORD"
-    "Cloudflare cloudflare CLOUDFLARE_API_EMAIL CLOUDFLARE_DNS_API_TOKEN CLOUDFLARE_ZONE_API_TOKEN"
+    "Cloudflare cloudflare CLOUDFLARE_API_EMAIL CLOUDFLARE_ZONE_API_TOKEN CLOUDFLARE_DNS_API_TOKEN "
     "CloudXNS cloudxns CLOUDXNS_API_KEY CLOUDXNS_SECRET_KEY"
     "ConoHa conoha CONOHA_TENANT_ID CONOHA_API_USERNAME CONOHA_API_PASSWORD"
     "Constellix constellix CONSTELLIX_API_KEY CONSTELLIX_SECRET_KEY"
@@ -174,32 +174,41 @@ update_companion_env() {
     local companion_env="$companion_dir/cloudflare.env"
     
     if [[ ! -f "$companion_env" ]]; then
-        echo "Cloudflare companion env file not found at $companion_env"
-        return 1
+        mkdir -p "$companion_dir"
+        touch "$companion_env"
+        echo "Created new Cloudflare companion env file"
     fi
     
-    echo "Also updating Cloudflare companion env file..."
+    echo "Updating Cloudflare companion env file..."
     
     # Variablen-Mapping für Cloudflare
     declare -A var_mapping=(
-        ["CLOUDFLARE_EMAIL"]="CF_EMAIL"
+        ["CLOUDFLARE_API_EMAIL"]="CF_EMAIL"
         ["CLOUDFLARE_DNS_API_TOKEN"]="CF_TOKEN"
     )
     
+    # Debug-Ausgabe
+    echo "Processing variables for Cloudflare companion:"
+    
     # Kopiere und wandle die Werte um
     for var in "${vars[@]}"; do
+        echo "Checking variable: $var"
         if grep -q "^$var=" "$BASE_DIR/$ENV_FILE"; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2)
+            echo "Found value for $var"
             
             # Wenn es ein Mapping gibt, nutze den neuen Namen
             if [[ -n "${var_mapping[$var]}" ]]; then
                 new_var="${var_mapping[$var]}"
+                echo "Mapping $var to $new_var"
                 sed -i "/^$new_var=/d" "$companion_env"
                 echo "$new_var=$value" >> "$companion_env"
+                echo "Updated $new_var in companion env"
             fi
         fi
     done
 }
+
 # Main execution
 selected=$(printf "%s\n" "${providers[@]}" | fzf --prompt="Select your DNS provider: " --delimiter=" ")
 
