@@ -24,9 +24,6 @@ setup_homelab_config() {
     
     # Export variables for later use
     export_homelab_vars
-
-    # Update domain information in Docker files
-    update_domain_information || return 1
     
     log_success "Homelab configuration complete"
     return 0
@@ -362,28 +359,7 @@ update_system_type() {
     sed -i "s/systemType = \".*\";/systemType = \"homelab\";/" "$config_file"
 }
 
-update_domain_information() {
-    if [[ ! -d "$HOMELAB_DIR" ]]; then
-        log_error "Docker home directory not found: $HOMELAB_DIR"
-        return 1
-    fi
 
-    log_info "Updating domain information in Docker configurations..."
-    sleep 1
-    
-    # Update configuration files
-    find "$HOMELAB_DIR" \
-        -type f \( -name "*.yml" -o -name "*.env" \) \
-        -exec sed -i \
-            -e "s|{{EMAIL}}|${HOMELAB_EMAIL}|g" \
-            -e "s|{{DOMAIN}}|${HOMELAB_DOMAIN}|g" \
-            -e "s|{{CERTEMAIL}}|${HOMELAB_CERT_EMAIL}|g" \
-            -e "s|{{USER}}|${VIRT_USER}|g" \
-            {} \;
-    
-    log_success "Docker configuration files updated successfully!"
-    return 0
-} 
 
 
 export_homelab_vars() {
@@ -414,4 +390,3 @@ export -f update_system_type
 export -f export_homelab_vars
 export -f create_password_file
 export -f get_virt_password
-export -f update_domain_information

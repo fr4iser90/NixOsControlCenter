@@ -1,5 +1,5 @@
 # homelab-manager/default.nix
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, systemConfig, ... }:
 
 {
   imports = [
