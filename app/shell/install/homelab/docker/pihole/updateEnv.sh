@@ -1,6 +1,6 @@
 #!/bin/bash
-
-BASE_DIR="/home/docker/docker/pihole"
+source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/pihole"
 ENV_FILE="pihole.env"
 
 # Function to generate a new web password using nix-shell and openssl

@@ -162,6 +162,7 @@ get_virt_password() {
     local random_hex
     if ! random_hex=$(nix-shell -p openssl --run "openssl rand -hex 4"); then
         log_error "Failed to generate random hex with openssl"
+        echo "Error output: $random_hex"
         return 1
     fi
 
