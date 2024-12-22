@@ -36,7 +36,11 @@ collect_homelab_info() {
     virt_user=$(get_virt_username "$virt_user") || return 1
 
     # Virtualization user password
-    virt_password=$(get_virt_password)  || return 1
+    get_virt_password  # Direkt aufrufen, nicht in Subshell
+    local pw_result=$?
+    if [[ $pw_result -ne 0 ]]; then
+        return 1
+    fi
     
     # Validate usernames
     if [[ "$admin_user" == "$virt_user" ]]; then
@@ -184,29 +188,25 @@ get_virt_password() {
     echo -e "\033[0;36m2. Password file location: /etc/nixos/secrets/passwords/${virt_user}/.hashedPassword\033[0m"
     echo -e "\033[0;36m3. Password Manager will be implemented soon\033[0m"
     echo -e "\033[0;36m----------------------------------------\033[0m"
-
-    sleep 1
     
     while true; do
         read -esp $'\033[0;34m[?]\033[0m Enter custom password (or press enter for random): ' password
-        echo  # Neue Zeile nach der Passworteingabe
+        echo
         
-        # Wenn Enter gedrückt wurde, nutze das Standardpasswort
         if [[ -z "$password" ]]; then
             log_success "Using random password"
-            echo "$default_password"
+            virt_password="$default_password"  # Hier setzen!
             return 0
         fi
         
-        # Einfachere Validierung: Mindestens 8 Zeichen
         if [[ "${#password}" -ge 8 ]]; then
             log_success "Using custom password"
-            echo "$password"
+            virt_password="$password"  # Hier setzen!
             return 0
         fi
         
         log_error "Password must be at least 8 characters"
-        sleep 1  
+        sleep 1
     done
 }
 
