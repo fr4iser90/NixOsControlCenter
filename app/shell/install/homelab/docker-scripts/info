@@ -1,7 +1,0 @@
-Port Range  Allocation for HomeLab Services
-9000–9099	Management Tools	Portainer (9000), Cockpit (9001), Rancher (9002), Proxmox GUI (9003)
-9100–9199	Web Services	Vaultwarden (9100), Nextcloud (9101), Home Assistant (9102), BookStack (9103)
-9200–9299	Databases	PostgreSQL (9200), MySQL/MariaDB (9201), Redis (9202), MongoDB (9203)
-9300–9399	Monitoring & Logging	Prometheus (9300), Grafana (9301), Loki (9302), ELK Stack (9303)
-9400–9499	Media Services	Plex Media Server (9400), Jellyfin (9401), Emby (9402), Sonarr (9403), Radarr (9404)
-9500–9599	Development Tools	GitLab (9500), Jenkins (9501), Gitea (9502), Nexus (9503), Jenkins (9504)
