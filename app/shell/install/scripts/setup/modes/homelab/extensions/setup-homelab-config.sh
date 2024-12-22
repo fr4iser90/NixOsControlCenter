@@ -327,6 +327,10 @@ export -f get_virt_username
 export -f get_email
 export -f get_domain
 export -f get_cert_email
+export -f log_error
+export -f log_success
+export -f log_section
+export -f setup_homelab_config
 export -f update_users_homelab_block
 export -f update_email_domain
 export -f update_system_type
