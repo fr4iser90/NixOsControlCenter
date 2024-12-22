@@ -290,7 +290,7 @@ get_desktop_enabled() {
 
 update_desktop_enabled() {
     local config_file="$1"
-    local enabled="$2"
+    local enable_desktop="$2"
     
     sed -i "s/enableDesktop = .*\;/enableDesktop = ${enable_desktop};/" "$config_file"
 
