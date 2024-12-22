@@ -158,21 +158,34 @@ update_homelab_config() {
 }
 
 get_virt_password() {
-    local default_password="p4ssw0rd-$(openssl rand -hex 4)"
+    # Generiere ein garantiert valides Standardpasswort
+    local default_password="P@ssw0rd-$(openssl rand -hex 4)"
     local password
     
+    echo -e "\033[0;33m[!]\033[0m Random password will be: $default_password"
+    echo -e "\033[0;33m[!]\033[0m Please make sure to change this password after first login! "
+    echo -e "\033[0;33m[!]\033[0m Change it @ .hashedPassword at /etc/nixos/secrets/passwords/${virt_user}"
+    echo -e "\033[0;33m[!]\033[0m Change it @ Password Manager will be implemented"
+    
     while true; do
-        read -esp $'\033[0;34m[?]\033[0m Enter virtualization user password'"${default_password:+ [press enter for random]}"': ' password
+        read -esp $'\033[0;34m[?]\033[0m Enter custom password (or press enter for random): ' password
         echo  # Neue Zeile nach der Passworteingabe
         
-        password="${password:-$default_password}"
+        # Wenn Enter gedrückt wurde, nutze das Standardpasswort
+        if [[ -z "$password" ]]; then
+            log_success "Using random password"
+            echo "$default_password"
+            return 0
+        fi
         
-        # Mindestens 8 Zeichen, mind. 1 Großbuchstabe, 1 Kleinbuchstabe, 1 Zahl und 1 Sonderzeichen
-        if [[ "${#password}" -ge 8 && "$password" =~ [A-Z] && "$password" =~ [a-z] && "$password" =~ [0-9] && "$password" =~ [^[:alnum:]] ]]; then
+        # Einfachere Validierung: Mindestens 8 Zeichen
+        if [[ "${#password}" -ge 8 ]]; then
+            log_success "Using custom password"
             echo "$password"
             return 0
         fi
-        log_error "Password must be at least 8 characters and contain uppercase, lowercase, numbers and special characters"
+        
+        log_error "Password must be at least 8 characters"
     done
 }
 
