@@ -1,6 +1,8 @@
 #!/bin/bash
 
-BASE_DIR="/home/docker/docker/plex"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../docker-scripts/lib/config.sh"
+BASE_DIR="$DOCKER_BASE_DIR/plex"
 ENV_FILE="$BASE_DIR/plex.env"
 
 # Function to prompt the user for the PLEX_CLAIM token

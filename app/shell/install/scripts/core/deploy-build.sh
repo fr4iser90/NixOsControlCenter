@@ -59,7 +59,6 @@ deploy_base_config() {
     find /etc/nixos/ -type d -exec chmod 755 {} \;
 
     # Build and switch
-    log_info "Building system..."
     log_success "Build system..."
     nixos-rebuild switch --flake /etc/nixos#$(hostname)
 

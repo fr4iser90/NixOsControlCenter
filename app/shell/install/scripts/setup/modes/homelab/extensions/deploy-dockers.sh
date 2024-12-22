@@ -24,12 +24,28 @@ deploy_docker_config() {
     log_info "Copying docker configuration..."
     cp -r "${HOMELAB_DIR}/"* "$DOCKER_HOME/"
     
-    # Set permissions
-    log_info "Setting permissions..."
-    chown -R "${VIRT_USER}:${VIRT_USER}" "$DOCKER_HOME"
-    chmod -R 755 "$DOCKER_HOME"
+
+    # Set temporary permissions - SECURITY WARNING!
+    log_info "Setting temporary permissions..."
+    log_warn "WARNING: Setting full access (777) for all users!"
+    log_warn "This is temporary and must be fixed by docker user after system setup!"
+    chmod -R 777 "$DOCKER_HOME"  # TEMPORARY: Full access for all until docker user exists
+    
+    # Create reminder file
+    cat > "$DOCKER_HOME/SECURITY_README.txt" << EOF
+SECURITY WARNING!
+================
+This directory currently has full access permissions (777) for all users.
+This is temporary and must be fixed after system setup by running:
+
+cd ~/docker-scripts
+./init-homelab.sh
+
+This will set proper permissions for all files and directories.
+EOF
     
     
+    sleep 1
     # Update configuration files
     log_info "Updating configuration files..."
     find "$DOCKER_HOME" \
