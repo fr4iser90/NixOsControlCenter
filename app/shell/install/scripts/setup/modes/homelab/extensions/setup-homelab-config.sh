@@ -34,7 +34,7 @@ collect_homelab_info() {
     
     # Virtualization user
     virt_user=$(get_virt_username "$virt_user") || return 1
-    
+    declare -g virt_password=""
     # Virtualization user password
     virt_password=$(get_virt_password) || return 1
     
