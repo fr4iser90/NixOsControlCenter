@@ -269,7 +269,7 @@ get_desktop_enabled() {
     local response
     
     while true; do
-        read -ep $'\033[0;34m[?]\033[0m Enable desktop environment? (y/n)'"${default_enabled:+ [Y]}"': ' response
+        read -ep $'\033[0;34m[?]\033[0m Enable desktop environment (no still buggy, need to restart after build)? (y/n) ' response
         response="${response:-${default_enabled}}"
         
         case "${response,,}" in

@@ -79,8 +79,7 @@ show_standard_completion_message() {
 }
 
 show_homelab_completion_message() {
-    local docker_script="${NIXOS_CONFIG_DIR}/deploy-docker-${hostname}.sh"
-    
+   
     log_success "Building complete! Starting docker homelab setup..."
     read -p "Do you want to switch to ${virt_user} user now? (y/N) " -n 1 -r
     echo
