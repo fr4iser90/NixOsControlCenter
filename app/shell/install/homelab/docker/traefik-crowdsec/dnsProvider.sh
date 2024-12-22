@@ -168,7 +168,7 @@ update_companion_env() {
     # Nur für Cloudflare ausführen
     if [[ "$provider" != "cloudflare" ]]; then
         return 0
-    }
+    fi
     
     local companion_dir="$DOCKER_BASE_DIR/cloudflare-traefik-companion"
     local companion_env="$companion_dir/cloudflare.env"

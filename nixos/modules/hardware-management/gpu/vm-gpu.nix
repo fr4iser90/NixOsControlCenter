@@ -17,8 +17,10 @@
     };
 
     # Enable SPICE agent service
-    services.spice-vdagentd.enable = true;
-
+    services.spice-vdagentd = {
+      enable = true;
+      extraOptions = [ "-x" ];  # Enable clipboard sharing
+    };
     # Enable QXL and Virtio GPU support
     hardware.graphics = {
       enable = true;

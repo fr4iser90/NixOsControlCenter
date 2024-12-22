@@ -24,6 +24,9 @@ setup_homelab_config() {
     
     # Export variables for later use
     export_homelab_vars
+
+    # Update domain information in Docker files
+    update_domain_information || return 1
     
     log_success "Homelab configuration complete"
     return 0
@@ -137,6 +140,7 @@ update_homelab_config() {
     update_users_homelab_block "$temp_file" || return 1
     update_email_domain "$temp_file" || return 1
     update_system_type "$temp_file" || return 1
+   
 
     # Verify changes
     if diff "$SYSTEM_CONFIG_FILE" "$temp_file" >/dev/null; then
@@ -269,7 +273,7 @@ get_desktop_enabled() {
     local response
     
     while true; do
-        read -ep $'\033[0;34m[?]\033[0m Enable desktop environment (no still buggy, need to restart after build)? (y/n) ' response
+        read -ep $'\033[0;34m[?]\033[0m Enable desktop environment ("no" is still buggy, need to restart after build)? (y/n) ' response
         response="${response:-${default_enabled}}"
         
         case "${response,,}" in
@@ -358,6 +362,28 @@ update_system_type() {
     sed -i "s/systemType = \".*\";/systemType = \"homelab\";/" "$config_file"
 }
 
+update_domain_information() {
+    if [[ ! -d "$DOCKER_HOME" ]]; then
+        log_error "Docker home directory not found: $DOCKER_HOME"
+        return 1
+    fi
+
+    log_info "Updating domain information in Docker configurations..."
+    sleep 1
+    
+    # Update configuration files
+    find "$DOCKER_HOME" \
+        -type f \( -name "*.yml" -o -name "*.env" \) \
+        -exec sed -i \
+            -e "s|{{EMAIL}}|${HOMELAB_EMAIL}|g" \
+            -e "s|{{DOMAIN}}|${HOMELAB_DOMAIN}|g" \
+            -e "s|{{CERTEMAIL}}|${HOMELAB_CERT_EMAIL}|g" \
+            -e "s|{{USER}}|${VIRT_USER}|g" \
+            {} \;
+    
+    log_success "Docker configuration files updated successfully!"
+    return 0
+}
 
 
 export_homelab_vars() {
@@ -388,3 +414,4 @@ export -f update_system_type
 export -f export_homelab_vars
 export -f create_password_file
 export -f get_virt_password
+export -f update_domain_information
