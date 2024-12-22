@@ -18,7 +18,7 @@ deploy_docker_config() {
     fi
     
     # Create directory structure
-    mkdir -p "$DOCKER_HOME"/{compose,data,config}
+    mkdir -p "$DOCKER_HOME"/{volumes,config}
     
     # Copy configurations
     log_info "Copying docker configuration..."

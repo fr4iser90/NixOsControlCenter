@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
+# Get absolute path to script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 
 # Docker containers that should be skipped (already handled by init-firewall.sh)
 EXCEPT=("traefik-crowdsec")

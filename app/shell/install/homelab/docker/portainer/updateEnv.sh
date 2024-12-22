@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")../../docker-scripts/lib/config.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../docker-scripts/lib/config.sh"
 BASE_DIR="$DOCKER_BASE_DIR/portainer"
 COMPOSE_FILE="docker-compose.yml"
 

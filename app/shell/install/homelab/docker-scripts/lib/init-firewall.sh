@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
+# Get absolute path to script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 
 # Function to create a new bouncer key
 create_bouncer_key() {
