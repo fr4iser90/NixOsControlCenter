@@ -158,7 +158,7 @@ update_homelab_config() {
 }
 
 get_virt_password() {
-
+    log_section "Password Generation Virtualization User"
     local random_hex
     if ! random_hex=$(openssl rand -hex 4 2>/dev/null); then
         # Fallback wenn openssl fehlschlägt
@@ -204,6 +204,7 @@ get_virt_password() {
         fi
         
         log_error "Password must be at least 8 characters"
+        sleep 1  
     done
 }
 
