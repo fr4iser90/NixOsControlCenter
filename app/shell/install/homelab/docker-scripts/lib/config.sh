@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Base paths
-export DOCKER_BASE_DIR="${HOME}/homelab/docker"
-export DOCKER_SCRIPT_DIR="${HOME}/homelab/docker-scripts"
+# Get the absolute path to the script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get parent directory of docker-scripts
+BASE_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
-# Validate DOMAIN environment variable
-if [ -z "$DOMAIN" ]; then
-    echo "ERROR: DOMAIN environment variable is not set"
-    exit 1
-fi
+# Base paths relative to where the script actually is
+export DOCKER_BASE_DIR="${BASE_DIR}/docker"
+export DOCKER_SCRIPT_DIR="${BASE_DIR}/docker-scripts"
 
 # Docker container directories
 declare -A DOCKER_CONTAINERS=(
