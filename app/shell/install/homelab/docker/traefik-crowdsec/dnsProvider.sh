@@ -161,19 +161,24 @@ update_env_file() {
 }
 
 update_companion_env() {
+    echo "DEBUG: Function called with provider='$1' and vars='$@'"
     local provider="$1"
     shift
     local vars=("$@")
     
     # Nur für Cloudflare ausführen
+    echo "DEBUG: Checking if provider '$provider' is cloudflare"
     if [[ "$provider" != "cloudflare" ]]; then
+        echo "DEBUG: Provider is not cloudflare, exiting function"
         return 0
     fi
     
     local companion_dir="$DOCKER_BASE_DIR/cloudflare-traefik-companion"
     local companion_env="$companion_dir/cloudflare.env"
+    echo "DEBUG: Using companion_env path: $companion_env"
     
     if [[ ! -f "$companion_env" ]]; then
+        echo "DEBUG: Companion env file doesn't exist, creating it"
         mkdir -p "$companion_dir"
         touch "$companion_env"
         echo "Created new Cloudflare companion env file"
@@ -187,27 +192,33 @@ update_companion_env() {
         ["CLOUDFLARE_DNS_API_TOKEN"]="CF_TOKEN"
         ["DOMAIN_ZONE_ID"]="DOMAIN_ZONE_ID"
     )
-    
-    # Debug-Ausgabe
-    echo "Processing variables for Cloudflare companion:"
+    echo "DEBUG: Variable mapping initialized: ${!var_mapping[@]} -> ${var_mapping[@]}"
     
     # Kopiere und wandle die Werte um
     for var in "${vars[@]}"; do
-        echo "Checking variable: $var"
+        echo "DEBUG: Processing variable: '$var'"
         if grep -q "^$var=" "$BASE_DIR/$ENV_FILE"; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2)
-            echo "Found value for $var"
+            echo "DEBUG: Found value in ENV_FILE: $var=$value"
             
             # Wenn es ein Mapping gibt, nutze den neuen Namen
             if [[ -n "${var_mapping[$var]}" ]]; then
                 new_var="${var_mapping[$var]}"
-                echo "Mapping $var to $new_var"
+                echo "DEBUG: Mapping found: $var -> $new_var"
+                echo "DEBUG: Removing old entry for $new_var from companion env"
                 sed -i "/^$new_var=/d" "$companion_env"
+                echo "DEBUG: Adding new entry: $new_var=$value"
                 echo "$new_var=$value" >> "$companion_env"
-                echo "Updated $new_var in companion env"
+                echo "DEBUG: Updated $new_var in companion env"
+            else
+                echo "DEBUG: No mapping found for variable $var"
             fi
+        else
+            echo "DEBUG: Variable $var not found in ENV_FILE"
         fi
     done
+    
+    echo "DEBUG: Function completed"
 }
 
 # Main execution
