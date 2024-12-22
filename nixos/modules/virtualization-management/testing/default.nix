@@ -64,7 +64,7 @@ let
         };
         size = mkOption {
           type = types.int;
-          default = libVM.distros.${distro}.defaultDiskSize or 20;
+          default = libVM.distros.${distro}.defaultDiskSize or 40;
           description = "Image size in GB";
         };
       };
