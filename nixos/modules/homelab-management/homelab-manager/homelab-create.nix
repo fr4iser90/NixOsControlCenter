@@ -1,12 +1,26 @@
 { config, lib, pkgs, systemConfig, ... }:
 
 let
+  # Debug-Ausgaben mit unterschiedlichen Namen
+  debug1 = builtins.trace "Available users: ${toString (lib.attrNames systemConfig.users)}" null;
+  debug2 = builtins.trace "Users structure: ${builtins.toJSON systemConfig.users}" null;
+
   # Finde Virtualisierungsbenutzer
   virtUsers = lib.filterAttrs 
-    (name: user: user.role == "virtualization") 
+    (name: user: 
+      let
+        debug3 = builtins.trace "Checking user ${name} with role ${user.role}" null;
+      in 
+      user.role == "virtualization"
+    ) 
     systemConfig.users;
+  
+  debug4 = builtins.trace "Found virt users: ${toString (lib.attrNames virtUsers)}" null;
+  
   hasVirtUsers = (lib.length (lib.attrNames virtUsers)) > 0;
   virtUser = lib.head (lib.attrNames virtUsers);
+
+  debug5 = builtins.trace "Selected virtUser: ${virtUser}" null;
 
   homelab-create = pkgs.writeScriptBin "homelab-create" ''
     #!${pkgs.bash}/bin/bash
@@ -25,6 +39,10 @@ let
     HOMELAB_EMAIL="${systemConfig.email}"
     HOMELAB_DOMAIN="${systemConfig.domain}"
     HOMELAB_CERT_EMAIL="${systemConfig.certEmail}"
+    
+    # Debug: Zeige Konfigurationswerte
+    echo "Debug: VIRT_USER=$VIRT_USER"
+    echo "Debug: VIRT_HOME=$VIRT_HOME"
     
     # Prüfe ob der richtige User das Script ausführt
     if [ "$(whoami)" != "$VIRT_USER" ]; then
@@ -67,7 +85,6 @@ let
   '';
 
 in {
-  # Nur installieren wenn es einen Virtualisierungsbenutzer gibt
   environment.systemPackages = if hasVirtUsers then [
     homelab-create
   ] else [];
