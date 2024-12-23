@@ -20,7 +20,6 @@ let
     HOMELAB_PATH="app/shell/install/homelab"
     TEMP_DIR="/tmp/homelab-fetch"
     VIRT_HOME="/home/${virtUser}"
-    CONTAINER_DIR="$VIRT_HOME/containers"
     
     # Farben
     GREEN='\033[0;32m'
@@ -38,7 +37,6 @@ let
     echo -e "''${YELLOW}Fetching homelab configuration...''${NC}"
     rm -rf "$TEMP_DIR"
     mkdir -p "$TEMP_DIR"
-    mkdir -p "$CONTAINER_DIR"
     
     if ! git clone --depth 1 --branch main "$REPO_URL" "$TEMP_DIR"; then
       echo -e "''${RED}Failed to clone repository!''${NC}"
@@ -47,9 +45,10 @@ let
     
     cp -r "$TEMP_DIR/$HOMELAB_PATH"/* "$VIRT_HOME/"
     
-    chmod -R 755 "$CONTAINER_DIR"
-    find "$CONTAINER_DIR" -type f -exec chmod 644 {} \;
-    find "$CONTAINER_DIR" -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.json" \) -exec chmod 600 {} \;
+    # Berechtigungen setzen für alle kopierten Dateien
+    find "$VIRT_HOME" -type d -exec chmod 755 {} \;
+    find "$VIRT_HOME" -type f -exec chmod 644 {} \;
+    find "$VIRT_HOME" -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.json" \) -exec chmod 600 {} \;
     
     rm -rf "$TEMP_DIR"
     echo -e "''${GREEN}Homelab fetch completed successfully!''${NC}"

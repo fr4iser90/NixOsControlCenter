@@ -20,7 +20,7 @@ let
     # Konfiguration
     VIRT_USER="${virtUser}"
     VIRT_HOME="/home/$VIRT_USER"
-    CONTAINER_DIR="$VIRT_HOME/containers"
+    CONTAINER_DIR="$VIRT_HOME/docker"
     HOMELAB_EMAIL="${systemConfig.email}"
     HOMELAB_DOMAIN="${systemConfig.domain}"
     HOMELAB_CERT_EMAIL="${systemConfig.certEmail}"
