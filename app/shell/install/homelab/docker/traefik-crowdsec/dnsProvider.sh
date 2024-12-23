@@ -191,11 +191,13 @@ update_companion_env() {
     )
     
     if [ -f "$companion_env" ]; then
-        grep -v "^TARGET_DOMAIN=" "$companion_env" > "$companion_env.tmp" || true
+        grep -v "^TARGET_DOMAIN=" "$companion_env" | grep -v "^DOMAIN1=" > "$companion_env.tmp"
         mv "$companion_env.tmp" "$companion_env"
     fi
-    echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
     
+    echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
+    echo "DOMAIN1=$DOMAIN" >> "$companion_env"
+
     for var in "${vars[@]}"; do
         if [ -f "$BASE_DIR/$ENV_FILE" ]; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2 || echo "")
