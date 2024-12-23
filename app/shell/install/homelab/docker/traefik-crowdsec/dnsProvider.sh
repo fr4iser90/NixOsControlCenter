@@ -187,19 +187,18 @@ update_companion_env() {
       exit 1
     fi
 
-    declare -A var_mapping=(
-        ["CF_API_EMAIL"]="CF_EMAIL"
-        ["CF_API_KEY"]="CF_API_KEY"
-        ["CF_ZONE_ID"]="DOMAIN1_ZONE_ID"
-    )
-    
     # First, write domain information
     if [ -f "$companion_env" ]; then
-        # Backup existing file without domain entries
-        grep -v "^TARGET_DOMAIN=" "$companion_env" | grep -v "^DOMAIN1=" | grep -v "^CF_EMAIL=" > "$companion_env.tmp"
+        # Backup existing file without any CF entries
+        grep -v "^TARGET_DOMAIN=" "$companion_env" | \
+        grep -v "^DOMAIN1=" | \
+        grep -v "^CF_EMAIL=" | \
+        grep -v "^CF_API_KEY=" | \
+        grep -v "^DOMAIN1_ZONE_ID=" > "$companion_env.tmp"
         mv "$companion_env.tmp" "$companion_env"
     fi
     
+    # Write domain information
     echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
     echo "DOMAIN1=$DOMAIN" >> "$companion_env"
 
