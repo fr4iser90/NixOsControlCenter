@@ -150,9 +150,12 @@ update_env_file() {
   if [ -f "$BASE_DIR/$ENV_FILE" ]; then
     echo "Updating $ENV_FILE in traefik with $1 variables"
     for var in "${@:2}"; do
-      read -p "Enter value for $var: " value
+      # Use -s flag for silent/hidden input
+      read -s -p "Enter value for $var: " value
+      echo # Add newline after hidden input
       sed -i "/^$var=/d" "$BASE_DIR/$ENV_FILE"
       echo "$var=$value" >> "$BASE_DIR/$ENV_FILE"
+      echo "[OK] $var=********" # Show masked confirmation
     done
   else
     echo "File $BASE_DIR/$ENV_FILE does not exist" >&2
@@ -211,6 +214,7 @@ update_companion_env() {
                     fi
                     
                     echo "$new_var=$value" >> "$companion_env"
+                    echo "[OK] $new_var=********" # Show masked confirmation
                 fi
             fi
         else
