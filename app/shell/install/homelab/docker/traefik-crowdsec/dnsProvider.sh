@@ -31,7 +31,7 @@ providers=(
     "Civo civo CIVO_TOKEN"
     "Cloud.ru cloudru CLOUDRU_SERVICE_INSTANCE_ID CLOUDRU_KEY_ID CLOUDRU_SECRET"
     "CloudDNS clouddns CLOUDDNS_CLIENT_ID CLOUDDNS_EMAIL CLOUDDNS_PASSWORD"
-    "Cloudflare cloudflare CLOUDFLARE_API_EMAIL DOMAIN_ZONE_ID CLOUDFLARE_DNS_API_TOKEN "
+    "Cloudflare cloudflare CF_API_EMAIL CF_ZONE_ID CF_API_KEY"
     "CloudXNS cloudxns CLOUDXNS_API_KEY CLOUDXNS_SECRET_KEY"
     "ConoHa conoha CONOHA_TENANT_ID CONOHA_API_USERNAME CONOHA_API_PASSWORD"
     "Constellix constellix CONSTELLIX_API_KEY CONSTELLIX_SECRET_KEY"
@@ -185,9 +185,9 @@ update_companion_env() {
     fi
 
     declare -A var_mapping=(
-        ["CLOUDFLARE_API_EMAIL"]="CF_EMAIL"
-        ["CLOUDFLARE_DNS_API_TOKEN"]="CF_TOKEN"
-        ["DOMAIN_ZONE_ID"]="DOMAIN1_ZONE_ID"
+        ["CF_API_EMAIL"]="CF_EMAIL"
+        ["CF_API_KEY"]="CF_API_KEY"
+        ["CF_ZONE_ID"]="DOMAIN1_ZONE_ID"
     )
     
     if [ -f "$companion_env" ]; then
