@@ -193,33 +193,38 @@ update_companion_env() {
         ["CF_ZONE_ID"]="DOMAIN1_ZONE_ID"
     )
     
+    # First, write domain information
     if [ -f "$companion_env" ]; then
-        grep -v "^TARGET_DOMAIN=" "$companion_env" | grep -v "^DOMAIN1=" > "$companion_env.tmp"
+        # Backup existing file without domain entries
+        grep -v "^TARGET_DOMAIN=" "$companion_env" | grep -v "^DOMAIN1=" | grep -v "^CF_EMAIL=" > "$companion_env.tmp"
         mv "$companion_env.tmp" "$companion_env"
     fi
     
     echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
     echo "DOMAIN1=$DOMAIN" >> "$companion_env"
 
+    # Then handle Cloudflare-specific variables
     for var in "${vars[@]}"; do
         if [ -f "$BASE_DIR/$ENV_FILE" ]; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2 || echo "")
             if [ -n "$value" ]; then
                 if [ -n "${var_mapping[$var]}" ]; then
                     new_var="${var_mapping[$var]}"
-                    
-                    if [ -f "$companion_env" ]; then
-                        grep -v "^$new_var=" "$companion_env" > "$companion_env.tmp" || true
-                        mv "$companion_env.tmp" "$companion_env"
-                    fi
-                    
                     echo "$new_var=$value" >> "$companion_env"
-                    echo "[OK] $new_var=********" # Show masked confirmation
+                    echo "[OK] Companion: $new_var=********" # Show masked confirmation
                 fi
             fi
         else
             echo "ENV_FILE not found: $BASE_DIR/$ENV_FILE" >&2
             exit 1
+        fi
+    done
+
+    # Verify all required variables are set
+    echo "Verifying Cloudflare companion env file..."
+    for required_var in "CF_EMAIL" "CF_API_KEY" "DOMAIN1_ZONE_ID"; do
+        if ! grep -q "^$required_var=" "$companion_env"; then
+            echo "Warning: $required_var is not set in companion env file"
         fi
     done
 }
