@@ -19,8 +19,8 @@ set_sensitive_permissions() {
     find "$HOME/docker" -type f -exec chmod 644 {} \;  # Files readable
 
     # Protect sensitive files
-    echo "Protecting sensitive files..."
-    find "$HOME/docker" -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.json" \) -exec chmod 600 {} \;
+#    echo "Protecting sensitive files..."
+#    find "$HOME/docker" -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.json" \) -exec chmod 600 {} \;
     
     echo "File permissions set successfully!"
     return 0
