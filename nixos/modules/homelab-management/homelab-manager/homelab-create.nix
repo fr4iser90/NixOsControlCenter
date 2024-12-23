@@ -20,7 +20,8 @@ let
     # Konfiguration
     VIRT_USER="${virtUser}"
     VIRT_HOME="/home/$VIRT_USER"
-    CONTAINER_DIR="$VIRT_HOME/docker"
+    DOCKER_DIR="$VIRT_HOME/docker"
+    DOCKER_SCRIPTS_DIR="$VIRT_HOME/docker-scripts"
     HOMELAB_EMAIL="${systemConfig.email}"
     HOMELAB_DOMAIN="${systemConfig.domain}"
     HOMELAB_CERT_EMAIL="${systemConfig.certEmail}"
@@ -34,8 +35,8 @@ let
     echo -e "''${YELLOW}Creating new homelab environment...''${NC}"
     
     # Prüfe ob Container-Verzeichnis existiert
-    if [[ ! -d "$CONTAINER_DIR" ]]; then
-        echo -e "''${RED}Container directory not found: $CONTAINER_DIR''${NC}"
+    if [[ ! -d "$DOCKER_DIR" ]]; then
+        echo -e "''${RED}Container directory not found: $DOCKER_DIR''${NC}"
         echo -e "''${YELLOW}Please run homelab-fetch first''${NC}"
         exit 1
     fi
@@ -43,7 +44,7 @@ let
     echo -e "''${YELLOW}Updating configuration files...''${NC}"
     
     # Update Konfigurationsdateien
-    find "$CONTAINER_DIR" \
+    find "$DOCKER_DIR" \
         -type f \( -name "*.yml" -o -name "*.env" \) \
         -exec sed -i \
             -e "s|{{EMAIL}}|$HOMELAB_EMAIL|g" \
@@ -53,7 +54,7 @@ let
             {} \;
     
     # Führe Init-Script aus, falls vorhanden
-    INIT_SCRIPT="$CONTAINER_DIR/scripts/init-homelab.sh"
+    INIT_SCRIPT="$DOCKER_SCRIPTS_DIR/init-homelab.sh"
     if [ -f "$INIT_SCRIPT" ]; then
       echo -e "''${YELLOW}Running initialization script...''${NC}"
       bash "$INIT_SCRIPT"
