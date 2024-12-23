@@ -203,20 +203,22 @@ update_companion_env() {
     echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
     echo "DOMAIN1=$DOMAIN" >> "$companion_env"
 
-    # Then handle Cloudflare-specific variables
+    # Handle Cloudflare variables
     for var in "${vars[@]}"; do
+        echo "Processing var: $var"
         if [ -f "$BASE_DIR/$ENV_FILE" ]; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2 || echo "")
-            if [ -n "$value" ]; then
-                if [ -n "${var_mapping[$var]}" ]; then
-                    new_var="${var_mapping[$var]}"
-                    echo "$new_var=$value" >> "$companion_env"
-                    echo "[OK] Companion: $new_var=********" # Show masked confirmation
-                fi
+            echo "Found value in traefik env: $var = [masked]"
+            if [ -n "$value" ] && [ -n "${var_mapping[$var]}" ]; then
+                new_var="${var_mapping[$var]}"
+                echo "Mapping $var to $new_var"
+                echo "$new_var=$value" >> "$companion_env"
+                echo "[OK] Companion: $new_var=********"
+            else
+                echo "No mapping or empty value for $var"
             fi
         else
-            echo "ENV_FILE not found: $BASE_DIR/$ENV_FILE" >&2
-            exit 1
+            echo "Traefik env file not found!"
         fi
     done
 
