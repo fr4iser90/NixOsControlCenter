@@ -209,16 +209,21 @@ update_companion_env() {
         if [ -f "$BASE_DIR/$ENV_FILE" ]; then
             value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2 || echo "")
             echo "Found value in traefik env: $var = [masked]"
-            if [ -n "$value" ] && [ -n "${var_mapping[$var]}" ]; then
-                new_var="${var_mapping[$var]}"
-                echo "Mapping $var to $new_var"
-                echo "$new_var=$value" >> "$companion_env"
-                echo "[OK] Companion: $new_var=********"
-            else
-                echo "No mapping or empty value for $var"
-            fi
-        else
-            echo "Traefik env file not found!"
+            
+            case "$var" in
+                "CF_API_EMAIL")
+                    echo "CF_EMAIL=$value" >> "$companion_env"
+                    echo "[OK] Companion: CF_EMAIL=********"
+                    ;;
+                "CF_API_KEY")
+                    echo "CF_API_KEY=$value" >> "$companion_env"
+                    echo "[OK] Companion: CF_API_KEY=********"
+                    ;;
+                "CF_ZONE_ID")
+                    echo "DOMAIN1_ZONE_ID=$value" >> "$companion_env"
+                    echo "[OK] Companion: DOMAIN1_ZONE_ID=********"
+                    ;;
+            esac
         fi
     done
 
