@@ -10,5 +10,10 @@ in {
     stateVersion = "24.05";
     username = user;
     homeDirectory = "/home/${user}";
+    sessionVariables = {
+      DOMAIN = systemConfig.domain;
+      EMAIL = systemConfig.email;
+      CERT_EMAIL = systemConfig.certEmail;
+    };
   };
 }
