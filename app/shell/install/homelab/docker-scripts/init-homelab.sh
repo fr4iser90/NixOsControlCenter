@@ -1,46 +1,52 @@
 #!/bin/bash
 
-# Get absolute path to script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get absolute path to script directory and import core
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "${SCRIPT_DIR}/lib/core/imports.sh"
 
-# Source configuration
-#source "$SCRIPT_DIR/config.sh"
+# Start with header and credential preference
+print_header "Homelab Setup"
+ask_credential_preference
 
 # Prevent running as root
 if [ "$EUID" -eq 0 ]; then
-    echo "Error: This script should NOT be run as root"
-    echo "Please run as normal user who is member of the docker group"
+    print_status "This script should NOT be run as root" "error"
+    print_status "Please run as normal user who is member of the docker group" "info"
     exit 1
 fi
 
 # Verify docker group membership
 if ! groups | grep -q docker; then
-    echo "Error: Current user must be in the docker group"
-    echo "Run: sudo usermod -aG docker $USER"
-    echo "Then log out and back in"
+    print_status "Current user must be in the docker group" "error"
+    print_status "Run: sudo usermod -aG docker $USER" "info"
+    print_status "Then log out and back in" "info"
     exit 1
 fi
+
+# Initialize components
+print_header "Component Initialization"
 
 # Set permissions
-echo "Setting permissions..."
-if ! bash "$SCRIPT_DIR/lib/set-permissions.sh"; then
-    echo "Failed to set permissions. Exiting."
+print_status "Setting up permissions..." "info"
+if ! setup_permissions; then
+    print_status "Failed to set permissions" "error"
     exit 1
 fi
 
-# Initialize security infrastructure (Traefik & CrowdSec)
-echo "Initializing security infrastructure..."
-if ! bash "$SCRIPT_DIR/lib/init-firewall.sh"; then
-    echo "Failed to initialize security infrastructure. Exiting."
+# Initialize security infrastructure
+print_status "Initializing security infrastructure..." "info"
+if ! initialize_security; then
+    print_status "Failed to initialize security infrastructure" "error"
     exit 1
 fi
 
-# Initialize all remaining services (Portainer, Plex, etc.)
-echo "Initializing application services..."
-if ! bash "$SCRIPT_DIR/lib/init-docker.sh"; then
-    echo "Failed to initialize docker services. Exiting."
+# Initialize all remaining services
+print_status "Initializing application services..." "info"
+if ! initialize_services; then
+    print_status "Failed to initialize docker services" "error"
     exit 1
 fi
 
-# Success message
-echo "Homelab initialization completed successfully."
+# Final success message
+print_header "Setup Complete"
+print_status "Homelab initialization completed successfully!" "success"
