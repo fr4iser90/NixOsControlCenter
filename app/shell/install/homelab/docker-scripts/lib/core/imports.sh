@@ -4,9 +4,9 @@
 SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 LIB_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Core imports
-source "$SCRIPT_DIR/path.sh"
-source "$SCRIPT_DIR/containers.sh"
+# Core imports (Reihenfolge wichtig!)
+source "$SCRIPT_DIR/containers.sh"  # Zuerst containers.sh für MANAGEMENT_CATEGORIES
+source "$SCRIPT_DIR/path.sh"        # Dann path.sh, das MANAGEMENT_CATEGORIES nutzt
 
 # Utils - Format
 source "$LIB_DIR/utils/format/colors.sh"
