@@ -20,21 +20,32 @@ print_header "DNS Configuration Setup"
 
 # Main update function
 update_dns_configuration() {
-    # 1. Get DNS provider and credentials
-    print_status "Setting up DNS provider..." "info"
-    if ! get_dns_credentials; then
+    # 1. Select DNS provider first
+    local selected_provider=$(select_dns_provider)
+    if [ $? -ne 0 ]; then
+        print_status "DNS provider selection failed" "error"
+        return 1
+    fi
+
+    # 2. Save provider info
+    IFS=' ' read -r provider_name provider_code provider_vars <<< "$selected_provider"
+    export DNS_PROVIDER_NAME="$provider_name"
+    export DNS_PROVIDER_CODE="$provider_code"
+
+    # 3. Get and save credentials
+    if ! get_dns_credentials "$selected_provider"; then
         print_status "Failed to get DNS credentials" "error"
         return 1
     fi
 
-    # 2. Update DDNS configuration
+    # 4. Update configurations
     print_status "Updating DDNS configuration..." "info"
     if ! update_ddns_config; then
         print_status "Failed to update DDNS configuration" "error"
         return 1
     fi
 
-    # 3. Handle Cloudflare specific setup
+    # 5. Handle Cloudflare specific setup
     if [[ "$DNS_PROVIDER_CODE" == "cloudflare" ]]; then
         print_status "Updating Cloudflare companion..." "info"
         if ! update_cloudflare_config; then
