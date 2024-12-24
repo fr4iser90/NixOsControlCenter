@@ -31,7 +31,7 @@ get_user_info
 
 # Define environment variables
 new_values=(
-    "PUID:$USER_UID"
+    "PUID:$USER_ID"
     "PGID:$USER_GID"
 )
 
