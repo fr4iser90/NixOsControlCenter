@@ -14,9 +14,9 @@ set_sensitive_permissions() {
     fi
     
     # Reset to standard Unix permissions
-    echo "Resetting to standard permissions..."
-    chmod -R 755 "$HOME/docker"  # Directories executable
-    find "$HOME/docker" -type f -exec chmod 644 {} \;  # Files readable
+#    echo "Resetting to standard permissions..."
+#    chmod -R 755 "$HOME/docker"  # Directories executable
+#    find "$HOME/docker" -type f -exec chmod 644 {} \;  # Files readable
 
     # Protect sensitive files
 #    echo "Protecting sensitive files..."

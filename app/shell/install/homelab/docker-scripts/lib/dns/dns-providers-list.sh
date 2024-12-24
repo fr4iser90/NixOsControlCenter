@@ -1,21 +1,14 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../docker-scripts/lib/config.sh"
-BASE_DIR="$DOCKER_BASE_DIR/traefik-crowdsec"
-ENV_FILE="traefik.env"
 
-# Check if fzf is installed
-if ! command -v fzf &> /dev/null; then
-  echo "fzf is not installed. Installing fzf..."
-  nix-env -iA nixos.fzf
-  if [ $? -ne 0 ]; then
-    echo "Failed to install fzf. Exiting."
-    exit 1
-  fi
-fi
+# DNS Provider Configuration List
+# Format: "Display Name identifier ENV_VAR1 ENV_VAR2 ..."
+# 
+# Display Name: Human readable name of the provider
+# identifier: Technical identifier used in scripts
+# ENV_VARx: Required environment variables for this provider
 
-# Provider list
 providers=(
+    # A
     "ACME DNS acme-dns ACME_DNS_API_BASE ACME_DNS_STORAGE_PATH"
     "Alibaba Cloud alidns ALICLOUD_ACCESS_KEY ALICLOUD_SECRET_KEY ALICLOUD_REGION_ID"
     "all-inkl allinkl ALL_INKL_LOGIN ALL_INKL_PASSWORD"
@@ -23,10 +16,14 @@ providers=(
     "Auroradns auroradns AURORA_USER_ID AURORA_KEY AURORA_ENDPOINT"
     "Autodns autodns AUTODNS_API_USER AUTODNS_API_PASSWORD"
     "AzureDNS azuredns AZURE_CLIENT_ID AZURE_CLIENT_SECRET AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP"
+
+    # B
     "Bindman bindman BINDMAN_MANAGER_ADDRESS"
     "Blue Cat bluecat BLUECAT_SERVER_URL BLUECAT_USER_NAME BLUECAT_PASSWORD BLUECAT_CONFIG_NAME BLUECAT_DNS_VIEW"
     "Brandit brandit BRANDIT_API_USERNAME BRANDIT_API_KEY"
     "Bunny bunny BUNNY_API_KEY"
+
+    # C
     "Checkdomain checkdomain CHECKDOMAIN_TOKEN"
     "Civo civo CIVO_TOKEN"
     "Cloud.ru cloudru CLOUDRU_SERVICE_INSTANCE_ID CLOUDRU_KEY_ID CLOUDRU_SECRET"
@@ -36,6 +33,8 @@ providers=(
     "ConoHa conoha CONOHA_TENANT_ID CONOHA_API_USERNAME CONOHA_API_PASSWORD"
     "Constellix constellix CONSTELLIX_API_KEY CONSTELLIX_SECRET_KEY"
     "CPanel and WHM cpanel CPANEL_MODE CPANEL_USERNAME CPANEL_TOKEN CPANEL_BASE_URL"
+
+    # D
     "Derak Cloud derak DERAK_API_KEY"
     "deSEC desec DESEC_TOKEN"
     "DigitalOcean digitalocean DO_AUTH_TOKEN"
@@ -49,13 +48,19 @@ providers=(
     "Duck DNS duckdns DUCKDNS_TOKEN"
     "Dyn dyn DYN_CUSTOMER_NAME DYN_USER_NAME DYN_PASSWORD"
     "Dynu dynu DYNU_API_KEY"
+
+    # E
     "EasyDNS easydns EASYDNS_TOKEN EASYDNS_KEY"
     "EdgeDNS edgedns AKAMAI_CLIENT_TOKEN AKAMAI_CLIENT_SECRET AKAMAI_ACCESS_TOKEN"
     "Efficient IP efficientip EFFICIENTIP_USERNAME EFFICIENTIP_PASSWORD EFFICIENTIP_HOSTNAME EFFICIENTIP_DNS_NAME"
     "Epik epik EPIK_SIGNATURE"
     "Exoscale exoscale EXOSCALE_API_KEY EXOSCALE_API_SECRET EXOSCALE_ENDPOINT"
+
+    # F
     "Fast DNS fastdns AKAMAI_CLIENT_TOKEN AKAMAI_CLIENT_SECRET AKAMAI_ACCESS_TOKEN"
     "Freemyip.com freemyip FREEMYIP_TOKEN"
+
+    # G
     "G-Core gcore GCORE_PERMANENT_API_TOKEN"
     "Gandi v5 gandiv5 GANDIV5_PERSONAL_ACCESS_TOKEN"
     "Gandi gandi GANDI_API_KEY"
@@ -63,12 +68,16 @@ providers=(
     "GoDaddy godaddy GODADDY_API_KEY GODADDY_API_SECRET"
     "Google Cloud DNS gcloud GCE_PROJECT GCE_SERVICE_ACCOUNT_FILE"
     "Google Domains googledomains GOOGLE_DOMAINS_ACCESS_TOKEN"
+
+    # H
     "Hetzner hetzner HETZNER_API_KEY"
     "hosting.de hostingde HOSTINGDE_API_KEY HOSTINGDE_ZONE_NAME"
     "Hosttech hosttech HOSTTECH_API_KEY"
     "http.net httpnet HTTPNET_API_KEY"
     "Hurricane Electric hurricane HURRICANE_TOKENS"
     "HyperOne hyperone HYPERONE_PASSPORT_LOCATION HYPERONE_LOCATION_ID"
+
+    # I
     "IBM Cloud (SoftLayer) ibmcloud SOFTLAYER_USERNAME SOFTLAYER_API_KEY"
     "IIJ DNS Platform Service iijdpf IIJ_DPF_API_TOKEN IIJ_DPF_DPM_SERVICE_CODE"
     "IIJ iij IIJ_API_ACCESS_KEY IIJ_API_SECRET_KEY IIJ_DO_SERVICE_CODE"
@@ -79,17 +88,25 @@ providers=(
     "ionos ionos IONOS_API_KEY"
     "IPv64 ipv64 IPV64_API_KEY"
     "iwantmyname iwantmyname IWANTMYNAME_USERNAME IWANTMYNAME_PASSWORD"
+
+    # J
     "Joker.com joker JOKER_API_MODE JOKER_API_KEY JOKER_USERNAME JOKER_PASSWORD"
+
+    # L
     "Liara liara LIARA_API_KEY"
     "Lightsail lightsail AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY DNS_ZONE"
     "Linode v4 linode LINODE_TOKEN"
     "Liquid Web liquidweb LIQUID_WEB_PASSWORD LIQUID_WEB_USERNAME LIQUID_WEB_ZONE"
     "Loopia loopia LOOPIA_API_PASSWORD LOOPIA_API_USER"
     "LuaDNS luadns LUADNS_API_USERNAME LUADNS_API_TOKEN"
+
+    # M
     "Mail-in-a-Box mailinabox MAILINABOX_EMAIL MAILINABOX_PASSWORD MAILINABOX_BASE_URL"
     "Metaname metaname METANAME_ACCOUNT_REFERENCE METANAME_API_KEY"
     "MyDNS.jp mydnsjp MYDNSJP_MASTER_ID MYDNSJP_PASSWORD"
     "Mythic Beasts mythicbeasts MYTHICBEASTS_USER_NAME MYTHICBEASTS_PASSWORD"
+
+    # N
     "name.com namedotcom NAMECOM_USERNAME NAMECOM_API_TOKEN NAMECOM_SERVER"
     "Namecheap namecheap NAMECHEAP_API_USER NAMECHEAP_API_KEY"
     "Namesilo namesilo NAMESILO_API_KEY"
@@ -101,19 +118,27 @@ providers=(
     "Njalla njalla NJALLA_TOKEN"
     "Nodion nodion NODION_API_TOKEN"
     "NS1 ns1 NS1_API_KEY"
+
+    # O
     "Open Telekom Cloud otc OTC_DOMAIN_NAME OTC_USER_NAME OTC_PASSWORD OTC_PROJECT_NAME OTC_IDENTITY_ENDPOINT"
     "Openstack Designate designate OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_TENANT_NAME OS_REGION_NAME"
     "Oracle Cloud oraclecloud OCI_COMPARTMENT_OCID OCI_PRIVKEY_FILE OCI_PRIVKEY_PASS OCI_PUBKEY_FINGERPRINT OCI_REGION OCI_TENANCY_OCID OCI_USER_OCID"
     "OVH ovh OVH_ENDPOINT OVH_APPLICATION_KEY OVH_APPLICATION_SECRET OVH_CONSUMER_KEY OVH_CLIENT_ID OVH_CLIENT_SECRET"
+
+    # P
     "Plesk plesk PLESK_SERVER_BASE_URL PLESK_USERNAME PLESK_PASSWORD"
     "Porkbun porkbun PORKBUN_SECRET_API_KEY PORKBUN_API_KEY"
     "PowerDNS pdns PDNS_API_KEY PDNS_API_URL"
+
+    # R
     "Rackspace rackspace RACKSPACE_USER RACKSPACE_API_KEY"
     "RcodeZero rcodezero RCODEZERO_API_TOKEN"
     "reg.ru regru REGRU_USERNAME REGRU_PASSWORD"
     "RFC2136 rfc2136 RFC2136_TSIG_KEY RFC2136_TSIG_SECRET RFC2136_TSIG_ALGORITHM RFC2136_NAMESERVER"
     "RimuHosting rimuhosting RIMUHOSTING_API_KEY"
     "Route 53 route53 AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_REGION AWS_HOSTED_ZONE_ID"
+
+    # S
     "Sakura Cloud sakuracloud SAKURACLOUD_ACCESS_TOKEN SAKURACLOUD_ACCESS_TOKEN_SECRET"
     "Scaleway scaleway SCW_API_TOKEN"
     "Selectel selectel SELECTEL_API_TOKEN"
@@ -123,10 +148,16 @@ providers=(
     "Simply.com simply SIMPLY_ACCOUNT_NAME SIMPLY_API_KEY"
     "Sonic sonic SONIC_USER_ID SONIC_API_KEY"
     "Stackpath stackpath STACKPATH_CLIENT_ID STACKPATH_CLIENT_SECRET STACKPATH_STACK_ID"
+
+    # T
     "Tencent Cloud DNS tencentcloud TENCENTCLOUD_SECRET_ID TENCENTCLOUD_SECRET_KEY"
     "TransIP transip TRANSIP_ACCOUNT_NAME TRANSIP_PRIVATE_KEY_PATH"
+
+    # U
     "UKFast SafeDNS safedns SAFEDNS_AUTH_TOKEN"
     "Ultradns ultradns ULTRADNS_USERNAME ULTRADNS_PASSWORD"
+
+    # V
     "Variomedia variomedia VARIOMEDIA_API_TOKEN"
     "VegaDNS vegadns SECRET_VEGADNS_KEY SECRET_VEGADNS_SECRET VEGADNS_URL"
     "Vercel vercel VERCEL_API_TOKEN"
@@ -135,130 +166,18 @@ providers=(
     "VK Cloud vkcloud VK_CLOUD_PASSWORD VK_CLOUD_PROJECT_ID VK_CLOUD_USERNAME"
     "Vscale vscale VSCALE_API_TOKEN"
     "VULTR vultr VULTR_API_KEY"
+
+    # W
     "Webnames webnames WEBNAMES_API_KEY"
     "Websupport websupport WEBSUPPORT_API_KEY WEBSUPPORT_SECRET"
     "WEDOS wedos WEDOS_USERNAME WEDOS_WAPI_PASSWORD"
+
+    # Y
     "Yandex 360 yandex360 YANDEX360_OAUTH_TOKEN YANDEX360_ORG_ID"
     "Yandex Cloud yandexcloud YANDEX_CLOUD_FOLDER_ID YANDEX_CLOUD_IAM_TOKEN"
     "Yandex yandex YANDEX_PDD_TOKEN"
+
+    # Z
     "Zone.ee zoneee ZONEEE_API_USER ZONEEE_API_KEY"
     "Zonomi zonomi ZONOMI_API_KEY"
 )
-
-# Function to update the traefik env file
-update_env_file() {
-  if [ -f "$BASE_DIR/$ENV_FILE" ]; then
-    echo "Updating $ENV_FILE in traefik with $1 variables"
-    for var in "${@:2}"; do
-      # Use -s flag for silent/hidden input
-      read -s -p "Enter value for $var: " value
-      echo # Add newline after hidden input
-      sed -i "/^$var=/d" "$BASE_DIR/$ENV_FILE"
-      echo "$var=$value" >> "$BASE_DIR/$ENV_FILE"
-      echo "[OK] $var=********" # Show masked confirmation
-    done
-  else
-    echo "File $BASE_DIR/$ENV_FILE does not exist" >&2
-    exit 1
-  fi
-}
-
-update_companion_env() {
-    local provider="$1"
-    shift
-    local vars=("$@")
-    
-    if [[ "$provider" != "cloudflare" ]]; then
-        return 0
-    fi
-    
-    local companion_dir="$DOCKER_BASE_DIR/cloudflare-traefik-companion"
-    local companion_env="$companion_dir/cloudflare.env"
-    
-    if [[ ! -f "$companion_env" ]]; then
-        mkdir -p "$companion_dir"
-        touch "$companion_env"
-        echo "Created new Cloudflare companion env file"
-    fi
-    
-    echo "Updating Cloudflare companion env file..."
-    if [ -z "$DOMAIN" ]; then
-      echo "DOMAIN environment variable is not set" >&2
-      exit 1
-    fi
-
-    # First, write domain information
-    if [ -f "$companion_env" ]; then
-        # Backup existing file without any CF entries
-        grep -v "^TARGET_DOMAIN=" "$companion_env" | \
-        grep -v "^DOMAIN1=" | \
-        grep -v "^CF_EMAIL=" | \
-        grep -v "^CF_API_KEY=" | \
-        grep -v "^DOMAIN1_ZONE_ID=" > "$companion_env.tmp"
-        mv "$companion_env.tmp" "$companion_env"
-    fi
-    
-    # Write domain information
-    echo "TARGET_DOMAIN=$DOMAIN" >> "$companion_env"
-    echo "DOMAIN1=$DOMAIN" >> "$companion_env"
-
-    # Handle Cloudflare variables
-    for var in "${vars[@]}"; do
-        echo "Processing var: $var"
-        if [ -f "$BASE_DIR/$ENV_FILE" ]; then
-            value=$(grep "^$var=" "$BASE_DIR/$ENV_FILE" | cut -d'=' -f2 || echo "")
-            echo "Found value in traefik env: $var = [masked]"
-            
-            case "$var" in
-                "CF_API_EMAIL")
-                    echo "CF_EMAIL=$value" >> "$companion_env"
-                    echo "[OK] Companion: CF_EMAIL=********"
-                    ;;
-                "CF_API_KEY")
-                    echo "CF_API_KEY=$value" >> "$companion_env"
-                    echo "[OK] Companion: CF_API_KEY=********"
-                    ;;
-                "CF_ZONE_ID")
-                    echo "DOMAIN1_ZONE_ID=$value" >> "$companion_env"
-                    echo "[OK] Companion: DOMAIN1_ZONE_ID=********"
-                    ;;
-            esac
-        fi
-    done
-
-    # Verify all required variables are set
-    echo "Verifying Cloudflare companion env file..."
-    for required_var in "CF_EMAIL" "CF_API_KEY" "DOMAIN1_ZONE_ID"; do
-        if ! grep -q "^$required_var=" "$companion_env"; then
-            echo "Warning: $required_var is not set in companion env file"
-        fi
-    done
-}
-
-# Main execution
-selected=$(printf "%s\n" "${providers[@]}" | fzf --prompt="Select your DNS provider: " --delimiter=" ")
-
-if [ -n "$selected" ]; then
-    provider_name=$(echo "$selected" | awk '{print $1}')
-    provider_code=$(echo "$selected" | awk '{print $2}')
-    vars=$(echo "$selected" | awk '{for(i=3;i<=NF;i++) printf $i " "; print ""}')
-    
-    # Update traefik env
-    update_env_file "$provider_code" $vars
-    
-    # Update companion env if cloudflare
-    update_companion_env "$provider_code" $vars
-    
-    echo "Traefik environment file has been updated with $provider_name provider."
-    if [[ "$provider_code" == "cloudflare" ]]; then
-        echo "Cloudflare companion environment file has also been updated."
-    fi
-else
-    echo "No provider selected. Exiting."
-    exit 1
-fi
-
-
-
-echo "Traefik environment file has been updated with $provider_name provider."
-   
