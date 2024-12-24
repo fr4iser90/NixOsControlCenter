@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# Standard script setup - DO NOT MODIFY
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Verify and source script-header
+if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
+    echo "Error: Cannot find script-header.sh"
+    exit 1
+fi
+
+source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+
+# ==============================================
+# DNS Provider Definitions
+# ==============================================
+
 # DNS Provider Configuration List
 # Format: "Display Name identifier ENV_VAR1 ENV_VAR2 ..."
 # 
@@ -181,3 +197,17 @@ providers=(
     "Zone.ee zoneee ZONEEE_API_USER ZONEEE_API_KEY"
     "Zonomi zonomi ZONOMI_API_KEY"
 )
+
+# Optional: Validation function
+validate_provider() {
+    local provider_code="$1"
+    
+    for provider in "${providers[@]}"; do
+        if [[ "$provider" =~ $provider_code ]]; then
+            return 0
+        fi
+    done
+    
+    print_status "Invalid provider code: $provider_code" "error"
+    return 1
+}

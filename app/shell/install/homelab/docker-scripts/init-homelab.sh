@@ -1,23 +1,23 @@
 #!/bin/bash
 
-# Resolve the real path to this script, following symlinks
+# Standard script setup
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-SCRIPT_DIR="$(dirname "$(dirname "$SCRIPT_PATH")")"
+DOCKER_SCRIPTS_DIR="$(dirname "$SCRIPT_PATH")"  # Dies gibt /home/docker/docker-scripts
 
-# Debug info (können wir später auskommentieren)
+# Debug output
 echo "Script path: $SCRIPT_PATH"
-echo "Script dir: $SCRIPT_DIR"
+echo "Script dir: $DOCKER_SCRIPTS_DIR"
 echo "Current dir: $(pwd)"
 
 # Verify script directory
-if [ ! -f "${SCRIPT_DIR}/lib/core/imports.sh" ]; then
+if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh" ]; then
     echo "Error: Script directory structure invalid"
-    echo "Expected: ${SCRIPT_DIR}/lib/core/imports.sh"
+    echo "Expected: ${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"  # Jetzt mit korrektem Pfad
     exit 1
 fi
 
 # Source imports
-source "${SCRIPT_DIR}/lib/core/imports.sh"
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Start with header and credential preference
 print_header "Homelab Setup"

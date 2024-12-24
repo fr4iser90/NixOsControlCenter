@@ -1,37 +1,50 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/config.sh"
-source "$(get_lib_file utils.sh)"
+
+# Standard script setup - DO NOT MODIFY
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Verify and source script-header
+if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
+    echo "Error: Cannot find script-header.sh"
+    exit 1
+fi
+
+source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+
+# ==============================================
+# Security Functions
+# ==============================================
 
 # CrowdSec Configuration
 configure_crowdsec_bouncer() {
-    echo -e "${INFO} Creating new bouncer key in CrowdSec..."
+    print_status "Creating new bouncer key in CrowdSec..." "info"
     
     local CROWDSEC_API_KEY=$(docker exec crowdsec sh -c "cscli hub update && \
                                                       cscli bouncers delete traefik-crowdsec-bouncer && \
                                                       cscli bouncers add traefik-crowsec-bouncer" | awk 'NR==3 {print $1}')
 
     if [ -z "$CROWDSEC_API_KEY" ]; then
-        echo -e "${ERROR} Failed to generate CrowdSec bouncer API key"
+        print_status "Failed to generate CrowdSec bouncer API key" "error"
         return 1
-    }
+    fi
 
     # Update bouncer configuration
     local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
     update_env_file "$TRAEFIK_DIR" "traefik-crowdsec-bouncer.env" \
         "CROWDSEC_BOUNCER_API_KEY:$CROWDSEC_API_KEY"
     
-    echo -e "${SUCCESS} CrowdSec Bouncer configured successfully"
+    print_status "CrowdSec Bouncer configured successfully" "success"
 }
 
 # Traefik Security Configuration
 configure_traefik_auth() {
-    echo -e "${INFO} Configuring Traefik authentication..."
+    print_status "Configuring Traefik authentication..." "info"
     
     local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
     
     # Get credentials
-    echo -e "${PROMPT} Enter Traefik credentials"
+    print_prompt "Enter Traefik credentials"
     local username
     username=$(prompt_input "Username" $INPUT_TYPE_NORMAL)
     local password
@@ -45,7 +58,7 @@ configure_traefik_auth() {
     sed -i "s|\${TRAEFIKUSER}|\"$username:$hashed_password\"|g" \
         "$TRAEFIK_DIR/traefik/dynamic_conf.yml"
         
-    echo -e "${SUCCESS} Traefik authentication configured"
+    print_status "Traefik authentication configured" "success"
 }
 
 configure_traefik_ssl() {
@@ -53,7 +66,7 @@ configure_traefik_ssl() {
     
     if validate_email; then
         sed -i "s|\${CERTEMAIL}|$CERTEMAIL|g" "$TRAEFIK_DIR/traefik/traefik.yml"
-        echo -e "${SUCCESS} SSL configuration updated"
+        print_status "SSL configuration updated" "success"
         return 0
     fi
     return 1
@@ -61,7 +74,7 @@ configure_traefik_ssl() {
 
 # Main initialization function
 initialize_security() {
-    echo -e "${INFO} Initializing security infrastructure..."
+    print_status "Initializing security infrastructure..." "info"
 
     local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
 
@@ -69,13 +82,13 @@ initialize_security() {
     for script in "update-crowdsec-env.sh" "update-traefik-env.sh"; do
         local script_path="$TRAEFIK_DIR/$script"
         if [ -f "$script_path" ]; then
-            echo -e "${INFO} Running $script..."
+            print_status "Running $script..." "info"
             bash "$script_path" || {
-                echo -e "${ERROR} Failed to run $script"
+                print_status "Failed to run $script" "error"
                 return 1
             }
         else
-            echo -e "${ERROR} Script not found: $script_path"
+            print_status "Script not found: $script_path" "error"
             return 1
         fi
     done
@@ -85,7 +98,7 @@ initialize_security() {
     configure_traefik_ssl || return 1
 
     # Start services
-    echo -e "${INFO} Starting Traefik with CrowdSec..."
+    print_status "Starting Traefik with CrowdSec..." "info"
     start_docker_container "traefik-crowdsec" || return 1
 
     # Configure bouncer
@@ -94,7 +107,7 @@ initialize_security() {
     # Restart to apply changes
     restart_docker_container "traefik-crowdsec" || return 1
 
-    echo -e "${SUCCESS} Security infrastructure initialized successfully"
+    print_status "Security infrastructure initialized successfully" "success"
     return 0
 }
 

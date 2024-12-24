@@ -15,7 +15,7 @@ get_docker_dir() {
     if [ -z "${MANAGEMENT_CATEGORIES[*]}" ]; then
         echo "Error: MANAGEMENT_CATEGORIES not defined" >&2
         return 1
-    }
+    fi
     
     category=$(get_container_category "$container")
     if [ $? -eq 0 ]; then

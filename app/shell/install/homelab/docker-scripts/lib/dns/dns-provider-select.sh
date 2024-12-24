@@ -1,5 +1,20 @@
 #!/bin/bash
-source "$(dirname "${BASH_SOURCE[0]}")/dns-providers-list.sh"
+
+# Standard script setup - DO NOT MODIFY
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Verify and source script-header
+if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
+    echo "Error: Cannot find script-header.sh"
+    exit 1
+fi
+
+source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+
+# ==============================================
+# DNS Provider Selection Functions
+# ==============================================
 
 # Provider Select Function
 # Returns: "provider_name|provider_code|env_vars"
@@ -7,12 +22,12 @@ source "$(dirname "${BASH_SOURCE[0]}")/dns-providers-list.sh"
 select_dns_provider() {
     # Check for fzf and install if needed
     if ! command -v fzf &> /dev/null; then
-        echo "fzf is not installed. Installing fzf..."
+        print_status "fzf is not installed. Installing fzf..." "info"
         nix-env -iA nixos.fzf || {
-            echo "Failed to install fzf. Exiting."
+            print_status "Failed to install fzf" "error"
             return 1
         }
-    fi
+    }
 
     # Use fzf for interactive provider selection
     local selected
@@ -32,17 +47,17 @@ select_dns_provider() {
         echo "$provider_name|$provider_code|$vars"
         return 0
     else
-        echo "No provider selected. Exiting." >&2
+        print_status "No provider selected" "error"
         return 1
     fi
 }
 
-# NEUE FUNKTION für die Credentials-Abfrage
+# Get DNS credentials
 get_dns_credentials() {
     local selected_provider=$(select_dns_provider)
     if [ $? -ne 0 ]; then
         return 1
-    fi
+    }
 
     # Split provider info
     IFS='|' read -r provider_name provider_code provider_vars <<< "$selected_provider"
@@ -50,9 +65,11 @@ get_dns_credentials() {
     # Declare associative array for credentials
     declare -A credentials
     
+    print_status "Configuring credentials for $provider_name" "info"
+    
     # Get credentials for each variable
     for var in $provider_vars; do
-        echo "Setting up $var..."
+        print_status "Setting up $var..." "info"
         credentials[$var]=$(prompt_password "Enter value for $var")
         # Export als Environment Variable
         export "$var=${credentials[$var]}"
@@ -62,6 +79,6 @@ get_dns_credentials() {
     export DNS_PROVIDER_NAME="$provider_name"
     export DNS_PROVIDER_CODE="$provider_code"
     
-    echo "Credentials configured for $provider_name"
+    print_status "Credentials configured for $provider_name" "success"
     return 0
 }
