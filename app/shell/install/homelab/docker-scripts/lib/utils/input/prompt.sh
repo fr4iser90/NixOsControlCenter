@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# Input types as constants
-declare -r INPUT_TYPE_NORMAL=1
-declare -r INPUT_TYPE_SENSITIVE=2
-declare -r INPUT_TYPE_EMAIL=3
+# Guard against multiple inclusion
+if [ -z "${_PROMPT_SH+x}" ]; then
+    _PROMPT_SH=1
+
+    # Input types as constants
+    declare -r INPUT_TYPE_NORMAL=1
+    declare -r INPUT_TYPE_SENSITIVE=2
+    declare -r INPUT_TYPE_EMAIL=3
+fi
 
 # Generic input prompt with validation
 prompt_input() {
