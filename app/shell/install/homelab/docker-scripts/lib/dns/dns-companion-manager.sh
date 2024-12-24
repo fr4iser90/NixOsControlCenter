@@ -7,9 +7,12 @@ _DNS_COMPANION_MANAGER_LOADED=1
 
 # Traefik Companion Konfiguration direkt hier!
 declare -ga TRAEFIK_COMPANIONS=(
-    "cloudflare:cloudflare"
+    "cloudflare:cloudflare-traefik-companion"  
 )
-TRAEFIK_COMPANIONS_DIR="gateway-management/traefik-companions"
+
+# Der Pfad muss zum gateway-management Ordner
+TRAEFIK_COMPANIONS_DIR="gateway-management"    
+
 
 update_companion_config() {
     local provider_code="$1"
