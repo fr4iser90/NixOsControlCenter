@@ -60,10 +60,13 @@ get_dns_credentials() {
     for var in $provider_vars; do
         print_status "Setting up $var..." "info"
         
-        # Frage nach dem Wert - NICHT als Passwort!
-        local value=$(prompt_input "Enter value for $var" $INPUT_TYPE_NORMAL)
+        # Hole den Wert mit der globalen Credential-Handhabung
+        local value=$(prompt_sensitive "Enter value for $var" "$var")
         
-        # Exportiere als normale Umgebungsvariable
+        # Zeige den eingegebenen Wert entsprechend der Einstellung
+        display_credential "$value" "$var"
+        
+        # Exportiere als Umgebungsvariable
         export "$var=$value"
     done
     
