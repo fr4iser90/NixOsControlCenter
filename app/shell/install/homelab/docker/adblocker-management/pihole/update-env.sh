@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+
 # Guard gegen mehrfaches Laden
 if [ -n "${_PIHOLE_ENV_LOADED+x}" ]; then
     return 0

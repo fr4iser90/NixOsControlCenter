@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+
 # Guard gegen mehrfaches Laden
 if [ -n "${_DDNS_CONFIG_LOADED+x}" ]; then
     return 0
@@ -29,7 +31,7 @@ update_dns_config() {
     if ! validate_domain; then
         print_status "Domain validation failed" "error"
         return 1
-    }
+    fi
 
     # Create config directory
     mkdir -p "$BASE_DIR/config"
