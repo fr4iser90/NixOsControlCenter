@@ -28,6 +28,7 @@ source "${DOCKER_LIB_DIR}/utils/security/hash.sh"
 
 # Utils - System
 source "${DOCKER_LIB_DIR}/utils/system/file.sh"
+source "${DOCKER_LIB_DIR}/utils/system/user.sh"
 source "${DOCKER_LIB_DIR}/utils/system/string.sh"
 
 # Services

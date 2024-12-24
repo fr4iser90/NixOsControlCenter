@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Standard script setup - DO NOT MODIFY
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Source core imports
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+
+
 # Guard gegen mehrfaches Laden
 if [ -n "${_CROWDSEC_ENV_LOADED+x}" ]; then
     return 0
