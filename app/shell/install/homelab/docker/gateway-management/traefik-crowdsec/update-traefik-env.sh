@@ -1,9 +1,9 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/config.sh"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/utils.sh"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/dns/dns-providers-list.sh"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/dns/select-dns-provider.sh"
+source "${SCRIPT_DIR}/../../../docker-scripts/lib/config.sh"
+source "${SCRIPT_DIR}/../../../docker-scripts/lib/utils.sh"
+source "${SCRIPT_DIR}/../../../docker-scripts/lib/dns/dns-providers-list.sh"
+source "${SCRIPT_DIR}/../../../docker-scripts/lib/dns/select-dns-provider.sh"
 source "${SCRIPT_DIR}/../ddns-updater/update-dns-env.sh"
 source "${SCRIPT_DIR}/../cloudflare-traefik-companion/update-cloudflare-companion-env.sh"
 

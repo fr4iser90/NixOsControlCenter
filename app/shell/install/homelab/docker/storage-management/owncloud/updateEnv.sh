@@ -1,7 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/config.sh"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/utils.sh"
+source "${SCRIPT_DIR}/../../../docker-scripts/lib/config.sh"
+source "${SCRIPT_DIR}/../../../docker-scripts/lib/utils.sh"
 
 BASE_DIR="$DOCKER_BASE_DIR/storage-management/owncloud"
 ENV_FILE="mysql.env"
