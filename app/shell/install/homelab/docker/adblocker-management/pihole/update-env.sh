@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Guard gegen mehrfaches Laden
-if [ -n "${_DDNS_UPDATER_LOADED+x}" ]; then
+if [ -n "${_PIHOLE_ENV_LOADED+x}" ]; then
     return 0
 fi
-_DDNS_UPDATER_LOADED=1
+_PIHOLE_ENV_LOADED=1
 
 # Script configuration
-SERVICE_NAME="ddns-updater"
-ENV_FILE="ddns-updater.env"
+SERVICE_NAME="pihole"
+ENV_FILE="pihole.env"
 
-print_header "Updating DDNS Updater Environment"
+print_header "Updating Pihole Environment"
 
 # Get service directory
 BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
@@ -19,14 +19,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Get user info
-print_status "Getting user information..." "info"
-get_user_info
+# Generate web password
+print_status "Generating secure Pihole web password..." "info"
+WEBPASSWORD=$(generate_random_string)
 
 # Define environment variables
 new_values=(
-    "PUID:$USER_UID"
-    "PGID:$USER_GID"
+    "WEBPASSWORD:$WEBPASSWORD"
 )
 
 # Update environment file

@@ -1,23 +1,41 @@
 #!/bin/bash
-source "${HOME}/docker-scripts/lib/config.sh"
-source "$(get_lib_file utils.sh)"
 
-# Get container directory
-BASE_DIR=$(get_docker_dir "traefik-crowdsec")
+# Guard gegen mehrfaches Laden
+if [ -n "${_CROWDSEC_ENV_LOADED+x}" ]; then
+    return 0
+fi
+_CROWDSEC_ENV_LOADED=1
+
+# Script configuration
+SERVICE_NAME="traefik-crowdsec"
 ENV_FILE="crowdsec.env"
 
+print_header "Updating Crowdsec Environment"
+
+# Get service directory
+BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
+if [ $? -ne 0 ]; then
+    print_status "Failed to get $SERVICE_NAME directory" "error"
+    exit 1
+fi
+
 # Get user info
+print_status "Getting user information..." "info"
 get_user_info
 
 # Define collections
 COLLECTIONS="crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/postfix crowdsecurity/dovecot crowdsecurity/nginx"
 
-# Update environment file
+# Define environment variables
 new_values=(
     "PGID:$USER_GID"
     "COLLECTIONS:$COLLECTIONS"
 )
 
-update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"
-
-echo "Crowdsec environment file has been updated."
+# Update environment file
+if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
+    print_status "Crowdsec environment file has been updated" "success"
+else
+    print_status "Failed to update environment file" "error"
+    exit 1
+fi

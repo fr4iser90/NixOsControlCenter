@@ -24,7 +24,7 @@ select_dns_provider() {
     local provider_list=()
     
     for provider in "${providers[@]}"; do
-        IFS=' ' read -r name code _ <<< "$provider"
+        IFS=' ' read -r name code vars <<< "$provider"
         echo "  $i) $name"
         provider_list+=("$provider")
         ((i++))
@@ -51,8 +51,8 @@ get_dns_credentials() {
         return 1
     fi
 
-    # Split provider info
-    IFS='|' read -r provider_name provider_code provider_vars <<< "$selected_provider"
+    # Split provider info (using space instead of |)
+    IFS=' ' read -r provider_name provider_code provider_vars <<< "$selected_provider"
     
     # Declare associative array for credentials
     declare -A credentials
