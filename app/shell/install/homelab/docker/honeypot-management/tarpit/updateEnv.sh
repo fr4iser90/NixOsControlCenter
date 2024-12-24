@@ -1,6 +1,10 @@
 #!/bin/bash
-source "${HOME}/docker-scripts/lib/config.sh"
-source "$(get_lib_file utils.sh)"
+
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Source core imports
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Get container directory
 BASE_DIR=$(get_docker_dir "tarpit")
