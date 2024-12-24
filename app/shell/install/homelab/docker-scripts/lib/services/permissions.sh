@@ -6,6 +6,9 @@ if [ -n "${_PERMISSIONS_SERVICE_LOADED+x}" ]; then
 fi
 _PERMISSIONS_SERVICE_LOADED=1
 
+# Setze VIRT_USER wenn nicht definiert
+VIRT_USER=${VIRT_USER:-$(whoami)}
+
 # ==============================================
 # Permission Management Functions
 # ==============================================
@@ -40,12 +43,9 @@ setup_permissions() {
     set_standard_permissions "$DOCKER_BASE_DIR"
     set_standard_permissions "$DOCKER_SCRIPTS_DIR"
 
-    # Set ownership if VIRT_USER is defined
-    if [ -n "$VIRT_USER" ]; then
-        set_ownership "$DOCKER_BASE_DIR" "$VIRT_USER"
-        set_ownership "$DOCKER_SCRIPTS_DIR" "$VIRT_USER"
-        print_status "File permissions and ownership set successfully!" "success"
-    else
-        print_status "VIRT_USER not defined, skipping ownership setup" "warning"
-    fi
+    # Set ownership (VIRT_USER sollte jetzt immer definiert sein)
+    set_ownership "$DOCKER_BASE_DIR" "$VIRT_USER"
+    set_ownership "$DOCKER_SCRIPTS_DIR" "$VIRT_USER"
+    print_status "File permissions and ownership set successfully!" "success"
+    return 0
 }

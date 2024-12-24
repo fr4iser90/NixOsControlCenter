@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Debug mode
-PS4='+ ${BASH_SOURCE[0]}:${LINENO}: '
-set -x
+# PS4='+ ${BASH_SOURCE[0]}:${LINENO}: '
+# set -x
 
 # Standard script setup - DO NOT MODIFY
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
