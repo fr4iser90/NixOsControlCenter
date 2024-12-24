@@ -1,25 +1,29 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/config.sh"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/utils.sh"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/dns/dns-providers-list.sh"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/dns/select-dns-provider.sh"
-source "${SCRIPT_DIR}/../ddns-updater/update-dns-env.sh"
-source "${SCRIPT_DIR}/../cloudflare-traefik-companion/update-cloudflare-companion-env.sh"
+source "${HOME}/docker-scripts/lib/config.sh"
+source "$(get_lib_file utils.sh)"
+source "$(get_lib_file dns/dns-providers-list.sh)"
+source "$(get_lib_file dns/select-dns-provider.sh)"
 
-BASE_DIR="$DOCKER_BASE_DIR/gateway-management/traefik-crowdsec"
+# Get container directories
+TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
+DDNS_DIR=$(get_docker_dir "ddns-updater")
+CLOUDFLARE_DIR=$(get_docker_dir "cloudflare-traefik-companion")
+
 ENV_FILE="traefik.env"
 
 # Get selected provider
 selected_provider=$(select_dns_provider)
 IFS='|' read -r provider_name provider_code vars <<< "$selected_provider"
 
-# Update traefik env
-update_dns_env "$provider_code" $vars
+# Update DDNS configuration
+echo "Updating DDNS configuration..."
+bash "$DDNS_DIR/update-dns-env.sh"
+bash "$DDNS_DIR/update-dns-conf.sh"
 
-# Update companion env if cloudflare
+# Update Cloudflare companion if selected
 if [[ "$provider_code" == "cloudflare" ]]; then
-    update_cloudflare_companion "$provider_code" $vars
+    echo "Updating Cloudflare companion..."
+    bash "$CLOUDFLARE_DIR/update-cloudflare-companion-env.sh"
 fi
 
 echo "Traefik environment file has been updated with $provider_name provider."

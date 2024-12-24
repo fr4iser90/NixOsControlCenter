@@ -1,21 +1,20 @@
 #!/bin/bash
+source "${HOME}/docker-scripts/lib/config.sh"
+source "$(get_lib_file utils.sh)"
 
-update_dns_env() {
-  local provider_code="$1"
-  shift
-  local vars=("$@")
+# Get container directory
+BASE_DIR=$(get_docker_dir "ddns-updater")
+ENV_FILE="ddns-updater.env"
 
-  if [ -f "$BASE_DIR/$ENV_FILE" ]; then
-    echo "Updating $ENV_FILE in traefik with $provider_code variables"
-    for var in "${vars[@]}"; do
-      read -s -p "Enter value for $var: " value
-      echo # Add newline after hidden input
-      sed -i "/^$var=/d" "$BASE_DIR/$ENV_FILE"
-      echo "$var=$value" >> "$BASE_DIR/$ENV_FILE"
-      echo "[OK] $var=********"
-    done
-  else
-    echo "File $BASE_DIR/$ENV_FILE does not exist" >&2
-    exit 1
-  fi
-}
+# Get user info
+get_user_info
+
+# Update environment file
+new_values=(
+    "PUID:$USER_UID"
+    "PGID:$USER_GID"
+)
+
+update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"
+
+echo "DDNS environment file has been updated."

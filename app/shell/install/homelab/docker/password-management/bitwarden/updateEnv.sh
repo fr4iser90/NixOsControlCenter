@@ -1,9 +1,9 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/config.sh"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/utils.sh"
+source "${HOME}/docker-scripts/lib/config.sh"
+source "$(get_lib_file utils.sh)"
 
-BASE_DIR="$DOCKER_BASE_DIR/password-management/bitwarden"
+# Get container directory
+BASE_DIR=$(get_docker_dir "bitwarden")
 ENV_FILE="bw.env"
 
 # Validate domain

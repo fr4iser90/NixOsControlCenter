@@ -1,9 +1,9 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/config.sh"
-source "${SCRIPT_DIR}/../../../../docker-scripts/lib/utils.sh"
+source "${HOME}/docker-scripts/lib/config.sh"
+source "$(get_lib_file utils.sh)"
 
-BASE_DIR="$DOCKER_BASE_DIR/vpn-management/wireguard"
+# Get container directory
+BASE_DIR=$(get_docker_dir "wireguard")
 ENV_FILE="wireguard.env"
 
 # Get WireGuard credentials

@@ -1,9 +1,9 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/config.sh"
-source "${SCRIPT_DIR}/../../../docker-scripts/lib/utils.sh"
+source "${HOME}/docker-scripts/lib/config.sh"
+source "$(get_lib_file utils.sh)"
 
-BASE_DIR="$DOCKER_BASE_DIR/storage-management/owncloud"
+# Get container directory
+BASE_DIR=$(get_docker_dir "owncloud")
 ENV_FILE="mysql.env"
 
 # Validate domain
@@ -11,14 +11,13 @@ validate_domain || exit 1
 
 # Generate MySQL root password
 MYSQL_ROOT_PASSWORD=$(generate_random_string)
-MYSQL_ROOT_PASSWORD_ESCAPED=$(escape_for_sed "$MYSQL_ROOT_PASSWORD")
 
 # Debug output
-echo "Generated MySQL root password: $MYSQL_ROOT_PASSWORD_ESCAPED"
+echo "Generated MySQL root password: $MYSQL_ROOT_PASSWORD"
 
 # Update environment file
 new_values=(
-    "MYSQL_ROOT_PASSWORD:$MYSQL_ROOT_PASSWORD_ESCAPED"
+    "MYSQL_ROOT_PASSWORD:$MYSQL_ROOT_PASSWORD"
     "APACHE_SERVER_NAME:$DOMAIN"
 )
 

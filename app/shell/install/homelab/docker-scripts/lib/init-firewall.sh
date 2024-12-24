@@ -1,9 +1,10 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
-source "${SCRIPT_DIR}/utils.sh"
+source "$(get_lib_file utils.sh)"
 
-TRAEFIK_CROWDSEC_BASE_DIR="$DOCKER_BASE_DIR/gateway-management/traefik-crowdsec"
+# Get container directory using helper function
+TRAEFIK_CROWDSEC_BASE_DIR=$(get_docker_dir "traefik-crowdsec")
 
 # Firewall Configuration Functions
 init_crowdsec_bouncer() {
@@ -46,8 +47,21 @@ main() {
     echo "Initializing Firewall Configuration..."
 
     # Update environment files
-    "$TRAEFIK_CROWDSEC_BASE_DIR/update-crowdsec-env.sh" || exit 1
-    "$TRAEFIK_CROWDSEC_BASE_DIR/update-traefik-env.sh" || exit 1
+    echo "Running environment updates..."
+    for script in "update-crowdsec-env.sh" "update-traefik-env.sh"; do
+        local script_path="$TRAEFIK_CROWDSEC_BASE_DIR/$script"
+        if [ -f "$script_path" ]; then
+            echo "Running $script..."
+            bash "$script_path" || {
+                echo "Failed to run $script" >&2
+                return 1
+            }
+        else
+            echo "Error: Script not found: $script_path" >&2
+            ls -la "$TRAEFIK_CROWDSEC_BASE_DIR"  # Debug output
+            return 1
+        fi
+    done
     
     # Initialize Traefik security
     init_traefik_auth || exit 1
