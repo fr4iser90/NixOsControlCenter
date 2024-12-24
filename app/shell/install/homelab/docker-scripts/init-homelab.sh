@@ -1,7 +1,22 @@
 #!/bin/bash
 
-# Get absolute path to script directory and import core
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve the real path to this script, following symlinks
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$(dirname "$SCRIPT_PATH")")"
+
+# Debug info (können wir später auskommentieren)
+echo "Script path: $SCRIPT_PATH"
+echo "Script dir: $SCRIPT_DIR"
+echo "Current dir: $(pwd)"
+
+# Verify script directory
+if [ ! -f "${SCRIPT_DIR}/lib/core/imports.sh" ]; then
+    echo "Error: Script directory structure invalid"
+    echo "Expected: ${SCRIPT_DIR}/lib/core/imports.sh"
+    exit 1
+fi
+
+# Source imports
 source "${SCRIPT_DIR}/lib/core/imports.sh"
 
 # Start with header and credential preference

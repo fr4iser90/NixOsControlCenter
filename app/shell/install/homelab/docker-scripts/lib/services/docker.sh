@@ -11,10 +11,10 @@ start_docker_container() {
 
     echo -e "${INFO} Starting ${BLUE}$container${NC}"
 
-    # Check for updateEnv.sh
-    if [ -f "$docker_dir/updateEnv.sh" ]; then
+    # Check for update-env.sh
+    if [ -f "$docker_dir/update-env.sh" ]; then
         echo -e "${INFO} Running environment updates..."
-        (cd "$docker_dir" && bash updateEnv.sh)
+        (cd "$docker_dir" && bash update-env.sh)
     fi
 
     if [ -d "$docker_dir" ]; then
