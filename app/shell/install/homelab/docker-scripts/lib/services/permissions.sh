@@ -1,16 +1,10 @@
 #!/bin/bash
 
-# Standard script setup - DO NOT MODIFY
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
-
-# Verify and source script-header
-if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
-    echo "Error: Cannot find script-header.sh"
-    exit 1
+# Guard gegen mehrfaches Laden
+if [ -n "${_PERMISSIONS_SERVICE_LOADED+x}" ]; then
+    return 0
 fi
-
-source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+_PERMISSIONS_SERVICE_LOADED=1
 
 # ==============================================
 # Permission Management Functions
@@ -44,12 +38,12 @@ setup_permissions() {
 
     # Set permissions for both directories
     set_standard_permissions "$DOCKER_BASE_DIR"
-    set_standard_permissions "$DOCKER_DOCKER_SCRIPTS_DIR"
+    set_standard_permissions "$DOCKER_SCRIPTS_DIR"
 
     # Set ownership if VIRT_USER is defined
     if [ -n "$VIRT_USER" ]; then
         set_ownership "$DOCKER_BASE_DIR" "$VIRT_USER"
-        set_ownership "$DOCKER_DOCKER_SCRIPTS_DIR" "$VIRT_USER"
+        set_ownership "$DOCKER_SCRIPTS_DIR" "$VIRT_USER"
         print_status "File permissions and ownership set successfully!" "success"
     else
         print_status "VIRT_USER not defined, skipping ownership setup" "warning"

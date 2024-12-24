@@ -1,20 +1,15 @@
 #!/bin/bash
 
-# Standard script setup - DO NOT MODIFY
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
-
-# Verify and source script-header
-if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
-    echo "Error: Cannot find script-header.sh"
-    exit 1
+# Guard gegen mehrfaches Laden
+if [ -n "${_DNS_PROVIDERS_LIST_LOADED+x}" ]; then
+    return 0
 fi
-
-source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+_DNS_PROVIDERS_LIST_LOADED=1
 
 # ==============================================
 # DNS Provider Definitions
 # ==============================================
+
 
 # DNS Provider Configuration List
 # Format: "Display Name identifier ENV_VAR1 ENV_VAR2 ..."

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Debug mode
+PS4='+ ${BASH_SOURCE[0]}:${LINENO}: '
+set -x
+
 # Standard script setup - DO NOT MODIFY
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 DOCKER_SCRIPTS_DIR="$(dirname "$SCRIPT_PATH")"

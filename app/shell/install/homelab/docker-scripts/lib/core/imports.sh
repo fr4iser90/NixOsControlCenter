@@ -1,10 +1,19 @@
 #!/bin/bash
 
-# Nutze die definierten Pfade aus path.sh
+# Guard gegen mehrfaches Laden
+if [ -n "${_IMPORTS_LOADED+x}" ]; then
+    return 0
+fi
+_IMPORTS_LOADED=1
+
+# Zuerst script-header laden (enthält DOCKER_SCRIPTS_DIR)
+source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+
+# Dann die Core-Module
 source "${DOCKER_SCRIPTS_DIR}/lib/core/containers.sh"
 source "${DOCKER_SCRIPTS_DIR}/lib/core/path.sh"
 
-# Utils - Format
+# Utils - Format (brauchen wir für Ausgaben)
 source "${DOCKER_LIB_DIR}/utils/format/colors.sh"
 source "${DOCKER_LIB_DIR}/utils/format/output.sh"
 
@@ -30,7 +39,6 @@ source "${DOCKER_LIB_DIR}/services/permissions.sh"
 source "${DOCKER_LIB_DIR}/dns/dns-provider-select.sh"
 source "${DOCKER_LIB_DIR}/dns/dns-providers-list.sh"
 
-# Verify all required files are loaded
 verify_imports() {
     local required_vars=(
         "DOCKER_BASE_DIR"     # from path.sh
@@ -40,7 +48,6 @@ verify_imports() {
 
     for var in "${required_vars[@]}"; do
         if [ -z "${!var}" ]; then
-            # Nutze print_status wenn verfügbar, sonst echo
             if type print_status >/dev/null 2>&1; then
                 print_status "Required variable $var is not set" "error"
             else
@@ -50,7 +57,6 @@ verify_imports() {
         fi
     done
 
-    # Erfolgsmeldung
     if type print_status >/dev/null 2>&1; then
         print_status "All required imports verified" "success"
     fi

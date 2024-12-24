@@ -1,18 +1,16 @@
 #!/bin/bash
+if [ -n "${_PATH_LOADED+x}" ]; then
+    return 0
+fi
+_PATH_LOADED=1
 
-# Standard script setup - DO NOT MODIFY
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
-
-# Base installation paths - DIESE SIND DIE STANDARD VARIABLEN
+# Base installation paths
 BASE_DIR="${HOME}"
 DOCKER_BASE_DIR="${BASE_DIR}/docker"         # Für Container
-DOCKER_SCRIPTS_DIR="${BASE_DIR}/docker-scripts"  # Für Scripts
 DOCKER_LIB_DIR="${DOCKER_SCRIPTS_DIR}/lib"   # Für Libraries
 
 # Export für andere Scripts
 export DOCKER_BASE_DIR
-export DOCKER_SCRIPTS_DIR
 export DOCKER_LIB_DIR
 
 # Path helper functions

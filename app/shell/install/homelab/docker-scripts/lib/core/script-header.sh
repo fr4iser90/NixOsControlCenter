@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Standard script setup - DO NOT MODIFY
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+# Guard gegen mehrfaches Laden
+if [ -n "${_SCRIPT_HEADER_LOADED+x}" ]; then
+    return 0
+fi
+_SCRIPT_HEADER_LOADED=1
 
 # Verify imports
 if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh" ]; then
@@ -10,13 +12,11 @@ if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh" ]; then
     exit 1
 fi
 
-source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
-
 # Set error handling
 set -euo pipefail
 
 # Enable debug mode if requested
 if [[ "${1:-}" == "--debug" ]]; then
     set -x
-    print_status "Debug mode enabled" "info"
+    echo "Debug mode enabled"
 fi

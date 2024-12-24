@@ -1,16 +1,10 @@
 #!/bin/bash
 
-# Standard script setup - DO NOT MODIFY
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
-
-# Verify and source script-header
-if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
-    echo "Error: Cannot find script-header.sh"
-    exit 1
+# Guard gegen mehrfaches Laden
+if [ -n "${_SECURITY_SERVICE_LOADED+x}" ]; then
+    return 0
 fi
-
-source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+_SECURITY_SERVICE_LOADED=1
 
 # ==============================================
 # Security Functions
@@ -110,5 +104,3 @@ initialize_security() {
     print_status "Security infrastructure initialized successfully" "success"
     return 0
 }
-
-initialize_security
