@@ -72,6 +72,13 @@ initialize_security() {
 
     local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
 
+    # DNS Setup MUSS ZUERST kommen!
+    print_status "Setting up DNS configuration..." "info"
+    if ! update_dns_configuration; then
+        print_status "Failed to configure DNS" "error"
+        return 1
+    fi
+
     # Update environment files
     for script in "update-crowdsec-env.sh" "update-traefik-env.sh"; do
         local script_path="$TRAEFIK_DIR/$script"

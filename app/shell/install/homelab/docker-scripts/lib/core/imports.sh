@@ -37,9 +37,10 @@ source "${DOCKER_LIB_DIR}/services/firewall.sh"
 source "${DOCKER_LIB_DIR}/services/permissions.sh"
 
 # DNS
+source "${DOCKER_LIB_DIR}/dns/dns-setup.sh"
 source "${DOCKER_LIB_DIR}/dns/dns-providers-list.sh"
 source "${DOCKER_LIB_DIR}/dns/dns-provider-select.sh"
-
+source "${DOCKER_LIB_DIR}/dns/dns-companion-manager.sh"
 
 verify_imports() {
     local required_vars=(
