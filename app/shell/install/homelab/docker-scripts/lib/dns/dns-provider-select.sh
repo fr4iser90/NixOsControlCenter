@@ -67,12 +67,12 @@ get_dns_credentials() {
         # Bestimme Input-Typ basierend auf Variablenname
         local input_type="$INPUT_TYPE_NORMAL"
         if [[ "$var" =~ .*(PASSWORD|SECRET|KEY|TOKEN).* ]]; then
-            input_type="$INPUT_TYPE_PASSWORD"
+            input_type="$INPUT_TYPE_SENSITIVE"
         fi
         
         # Frage nach dem Wert
         local value=""
-        if [ "$input_type" = "$INPUT_TYPE_PASSWORD" ]; then
+        if [ "$input_type" = "$INPUT_TYPE_SENSITIVE" ]; then
             value=$(prompt_password "Enter $var")
         else
             value=$(prompt_input "Enter $var" "$input_type")
