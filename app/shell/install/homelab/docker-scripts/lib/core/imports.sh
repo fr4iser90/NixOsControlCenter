@@ -1,38 +1,34 @@
 #!/bin/bash
 
-# Base paths
-SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-LIB_DIR="$(dirname "$SCRIPT_DIR")"
-
-# Core imports (Reihenfolge wichtig!)
-source "$SCRIPT_DIR/containers.sh"  # Zuerst containers.sh für MANAGEMENT_CATEGORIES
-source "$SCRIPT_DIR/path.sh"        # Dann path.sh, das MANAGEMENT_CATEGORIES nutzt
+# Nutze die definierten Pfade aus path.sh
+source "${DOCKER_SCRIPTS_DIR}/lib/core/containers.sh"
+source "${DOCKER_SCRIPTS_DIR}/lib/core/path.sh"
 
 # Utils - Format
-source "$LIB_DIR/utils/format/colors.sh"
-source "$LIB_DIR/utils/format/output.sh"
+source "${DOCKER_LIB_DIR}/utils/format/colors.sh"
+source "${DOCKER_LIB_DIR}/utils/format/output.sh"
 
 # Utils - Input
-source "$LIB_DIR/utils/input/prompt.sh"
-source "$LIB_DIR/utils/input/validation.sh"
+source "${DOCKER_LIB_DIR}/utils/input/prompt.sh"
+source "${DOCKER_LIB_DIR}/utils/input/validation.sh"
 
 # Utils - Security
-source "$LIB_DIR/utils/security/credentials.sh"
-source "$LIB_DIR/utils/security/crypto.sh"
-source "$LIB_DIR/utils/security/hash.sh"
+source "${DOCKER_LIB_DIR}/utils/security/credentials.sh"
+source "${DOCKER_LIB_DIR}/utils/security/crypto.sh"
+source "${DOCKER_LIB_DIR}/utils/security/hash.sh"
 
 # Utils - System
-source "$LIB_DIR/utils/system/file.sh"
-source "$LIB_DIR/utils/system/string.sh"
+source "${DOCKER_LIB_DIR}/utils/system/file.sh"
+source "${DOCKER_LIB_DIR}/utils/system/string.sh"
 
 # Services
-source "$LIB_DIR/services/docker.sh"
-source "$LIB_DIR/services/firewall.sh"
-source "$LIB_DIR/services/permissions.sh"
+source "${DOCKER_LIB_DIR}/services/docker.sh"
+source "${DOCKER_LIB_DIR}/services/firewall.sh"
+source "${DOCKER_LIB_DIR}/services/permissions.sh"
 
 # DNS
-source "$LIB_DIR/dns/dns-provider-select.sh"
-source "$LIB_DIR/dns/dns-providers-list.sh"
+source "${DOCKER_LIB_DIR}/dns/dns-provider-select.sh"
+source "${DOCKER_LIB_DIR}/dns/dns-providers-list.sh"
 
 # Verify all required files are loaded
 verify_imports() {

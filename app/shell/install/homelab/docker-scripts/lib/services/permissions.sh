@@ -44,12 +44,12 @@ setup_permissions() {
 
     # Set permissions for both directories
     set_standard_permissions "$DOCKER_BASE_DIR"
-    set_standard_permissions "$DOCKER_SCRIPT_DIR"
+    set_standard_permissions "$DOCKER_DOCKER_SCRIPTS_DIR"
 
     # Set ownership if VIRT_USER is defined
     if [ -n "$VIRT_USER" ]; then
         set_ownership "$DOCKER_BASE_DIR" "$VIRT_USER"
-        set_ownership "$DOCKER_SCRIPT_DIR" "$VIRT_USER"
+        set_ownership "$DOCKER_DOCKER_SCRIPTS_DIR" "$VIRT_USER"
         print_status "File permissions and ownership set successfully!" "success"
     else
         print_status "VIRT_USER not defined, skipping ownership setup" "warning"

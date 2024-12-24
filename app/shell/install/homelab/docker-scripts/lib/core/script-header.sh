@@ -1,18 +1,16 @@
 #!/bin/bash
 
-# Standard script setup
+# Standard script setup - DO NOT MODIFY
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-SCRIPT_DIR="$(dirname "$(dirname "$SCRIPT_PATH")")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 
-# Verify script directory
-if [ ! -f "${SCRIPT_DIR}/lib/core/imports.sh" ]; then
-    echo "Error: Script directory structure invalid"
-    echo "Expected: ${SCRIPT_DIR}/lib/core/imports.sh"
+# Verify imports
+if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh" ]; then
+    echo "Error: Cannot find imports.sh"
     exit 1
 fi
 
-# Source imports
-source "${SCRIPT_DIR}/lib/core/imports.sh"
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Set error handling
 set -euo pipefail

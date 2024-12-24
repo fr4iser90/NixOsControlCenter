@@ -1,19 +1,27 @@
 #!/bin/bash
 
-# Base installation paths
+# Standard script setup - DO NOT MODIFY
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Base installation paths - DIESE SIND DIE STANDARD VARIABLEN
 BASE_DIR="${HOME}"
-export DOCKER_BASE_DIR="${BASE_DIR}/docker"
-export DOCKER_SCRIPT_DIR="${BASE_DIR}/docker-scripts"
-export DOCKER_LIB_DIR="${DOCKER_SCRIPT_DIR}/lib"
+DOCKER_BASE_DIR="${BASE_DIR}/docker"         # Für Container
+DOCKER_SCRIPTS_DIR="${BASE_DIR}/docker-scripts"  # Für Scripts
+DOCKER_LIB_DIR="${DOCKER_SCRIPTS_DIR}/lib"   # Für Libraries
+
+# Export für andere Scripts
+export DOCKER_BASE_DIR
+export DOCKER_SCRIPTS_DIR
+export DOCKER_LIB_DIR
 
 # Path helper functions
 get_docker_dir() {
     local container=$1
     local category
     
-    # Ensure MANAGEMENT_CATEGORIES is available
     if [ -z "${MANAGEMENT_CATEGORIES[*]}" ]; then
-        echo "Error: MANAGEMENT_CATEGORIES not defined" >&2
+        print_status "MANAGEMENT_CATEGORIES not defined" "error"
         return 1
     fi
     
@@ -23,7 +31,7 @@ get_docker_dir() {
         return 0
     fi
     
-    echo "Container $container not found" >&2
+    print_status "Container $container not found" "error"
     return 1
 }
 
@@ -34,5 +42,5 @@ get_lib_file() {
 
 get_script_file() {
     local file=$1
-    echo "$DOCKER_SCRIPT_DIR/$file"
+    echo "$DOCKER_SCRIPTS_DIR/$file"
 }

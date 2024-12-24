@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Standard script setup
+# Standard script setup - DO NOT MODIFY
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="$(dirname "$SCRIPT_PATH")"  # Dies gibt /home/docker/docker-scripts
+DOCKER_SCRIPTS_DIR="$(dirname "$SCRIPT_PATH")"
 
 # Debug output
 echo "Script path: $SCRIPT_PATH"
@@ -12,7 +12,7 @@ echo "Current dir: $(pwd)"
 # Verify script directory
 if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh" ]; then
     echo "Error: Script directory structure invalid"
-    echo "Expected: ${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"  # Jetzt mit korrektem Pfad
+    echo "Expected: ${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
     exit 1
 fi
 
