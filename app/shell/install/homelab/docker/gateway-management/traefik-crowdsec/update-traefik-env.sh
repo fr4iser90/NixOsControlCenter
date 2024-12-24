@@ -2,7 +2,7 @@
 source "${HOME}/docker-scripts/lib/config.sh"
 source "$(get_lib_file utils.sh)"
 source "$(get_lib_file dns/dns-providers-list.sh)"
-source "$(get_lib_file dns/select-dns-provider.sh)"
+source "$(get_lib_file dns/dns-provider-select.sh)"
 
 # Get container directories
 TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
