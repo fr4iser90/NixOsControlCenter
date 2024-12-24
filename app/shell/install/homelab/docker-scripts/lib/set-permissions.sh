@@ -1,30 +1,27 @@
 #!/bin/bash
-
-# Get absolute path to script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 
-# Function to set sensitive file permissions
-set_sensitive_permissions() {
-    echo "Setting sensitive file permissions..."
-    
-    # Check if docker directory exists
-    if [ ! -d "$HOME/docker" ]; then
-        echo "Error: $HOME/docker does not exist!"
-        return 1
-    fi
-    
-    # Reset to standard Unix permissions
-#    echo "Resetting to standard permissions..."
-#    chmod -R 755 "$HOME/docker"  # Directories executable
-#    find "$HOME/docker" -type f -exec chmod 644 {} \;  # Files readable
+echo "Setting sensitive file permissions..."
 
-    # Protect sensitive files
-#    echo "Protecting sensitive files..."
-#    find "$HOME/docker" -type f \( -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.json" \) -exec chmod 600 {} \;
-    
-    echo "File permissions set successfully!"
-    return 0
-}
+# Make all scripts executable
+find "$DOCKER_BASE_DIR" -type f -name "*.sh" -exec chmod +x {} \;
+find "$DOCKER_SCRIPT_DIR" -type f -name "*.sh" -exec chmod +x {} \;
 
-# Main execution
-set_sensitive_permissions
+# Set directory permissions
+find "$DOCKER_BASE_DIR" -type d -exec chmod 755 {} \;
+find "$DOCKER_SCRIPT_DIR" -type d -exec chmod 755 {} \;
+
+# Set file permissions
+find "$DOCKER_BASE_DIR" -type f -exec chmod 644 {} \;
+find "$DOCKER_SCRIPT_DIR" -type f -exec chmod 644 {} \;
+
+# Make scripts executable again (after setting 644)
+find "$DOCKER_BASE_DIR" -type f -name "*.sh" -exec chmod +x {} \;
+find "$DOCKER_SCRIPT_DIR" -type f -name "*.sh" -exec chmod +x {} \;
+
+# Set ownership
+chown -R "$VIRT_USER:$VIRT_USER" "$DOCKER_BASE_DIR"
+chown -R "$VIRT_USER:$VIRT_USER" "$DOCKER_SCRIPT_DIR"
+
+echo "File permissions set successfully!"
