@@ -17,47 +17,54 @@ select_dns_provider() {
         return 1
     fi
 
-    print_status "Available DNS providers:" "info"
+    print_status "Select DNS provider:" "info"
     
-    # Create numbered list of providers
-    local i=1
-    local provider_list=()
-    
-    for provider in "${providers[@]}"; do
-        IFS=' ' read -r name code vars <<< "$provider"
-        echo "  $i) $name"
-        provider_list+=("$provider")
-        ((i++))
-    done
-    
-    # Get user selection
-    local selection
-    while true; do
-        selection=$(prompt_input "Select DNS provider (1-$((i-1)))" $INPUT_TYPE_NORMAL)
-        if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le $((i-1)) ]; then
-            break
-        fi
-        print_status "Invalid selection. Please try again." "error"
-    done
-    
-    # Return selected provider
-    echo "${provider_list[$((selection-1))]}"
+    # Erstelle temporäre Datei für die Provider-Liste
+    local tmp_file=$(mktemp)
+    printf "%s\n" "${providers[@]}" > "$tmp_file"
+
+    # Nutze FZF mit besseren Optionen
+    local selected_provider=$(cat "$tmp_file" | \
+        fzf --height=80% \
+            --layout=reverse \
+            --border=rounded \
+            --prompt="DNS Provider > " \
+            --header="Use arrows or type to search, Enter to select" \
+            --preview 'echo {} | cut -d" " -f1' \
+            --preview-window=up:1 \
+            --no-multi)
+
+    # Cleanup
+    rm "$tmp_file"
+
+    if [ -z "$selected_provider" ]; then
+        print_status "No provider selected" "error"
+        return 1
+    fi
+
+    echo "$selected_provider"
 }
 
 # Get DNS credentials
 get_dns_credentials() {
     local selected_provider="$1"
     
-    # Split provider info (using space instead of |)
-    IFS=' ' read -r provider_name provider_code provider_vars <<< "$selected_provider"
+    # Split provider info - nimm alles nach dem zweiten Feld
+    local provider_name=$(echo "$selected_provider" | cut -d' ' -f1)
+    local provider_code=$(echo "$selected_provider" | cut -d' ' -f2)
+    local provider_vars=$(echo "$selected_provider" | cut -d' ' -f3-)
     
     print_status "Configuring credentials for $provider_name" "info"
     
     # Get credentials for each variable
     for var in $provider_vars; do
         print_status "Setting up $var..." "info"
-        local cred=$(prompt_password "Enter value for $var")
-        export "$var=$cred"
+        
+        # Frage nach dem Wert - NICHT als Passwort!
+        local value=$(prompt_input "Enter value for $var" $INPUT_TYPE_NORMAL)
+        
+        # Exportiere als normale Umgebungsvariable
+        export "$var=$value"
     done
     
     print_status "Credentials configured for $provider_name" "success"
