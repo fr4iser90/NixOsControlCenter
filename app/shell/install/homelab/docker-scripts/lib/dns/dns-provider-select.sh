@@ -56,12 +56,27 @@ get_dns_credentials() {
     
     print_status "Configuring credentials for $provider_name" "info"
     
+    # Exportiere Provider-Info
+    export DNS_PROVIDER_NAME="$provider_name"
+    export DNS_PROVIDER_CODE="$provider_code"
+    
     # Get credentials for each variable
     for var in $provider_vars; do
         print_status "Setting up $var..." "info"
         
-        # Hole den Wert mit der globalen Credential-Handhabung
-        local value=$(prompt_sensitive "Enter value for $var" "$var")
+        # Bestimme Input-Typ basierend auf Variablenname
+        local input_type="$INPUT_TYPE_NORMAL"
+        if [[ "$var" =~ .*(PASSWORD|SECRET|KEY|TOKEN).* ]]; then
+            input_type="$INPUT_TYPE_PASSWORD"
+        fi
+        
+        # Frage nach dem Wert
+        local value=""
+        if [ "$input_type" = "$INPUT_TYPE_PASSWORD" ]; then
+            value=$(prompt_password "Enter $var")
+        else
+            value=$(prompt_input "Enter $var" "$input_type")
+        fi
         
         # Zeige den eingegebenen Wert entsprechend der Einstellung
         display_credential "$value" "$var"

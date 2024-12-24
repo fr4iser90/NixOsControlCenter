@@ -4,10 +4,10 @@
 if [ -z "${_PROMPT_SH+x}" ]; then
     _PROMPT_SH=1
 
-    # Input types as constants
-    declare -r INPUT_TYPE_NORMAL=1
-    declare -r INPUT_TYPE_SENSITIVE=2
-    declare -r INPUT_TYPE_EMAIL=3
+    # Input types as constants - EXPORTIERT für andere Scripts
+    export INPUT_TYPE_NORMAL=1
+    export INPUT_TYPE_SENSITIVE=2
+    export INPUT_TYPE_EMAIL=3
 fi
 
 # Generic input prompt with validation
