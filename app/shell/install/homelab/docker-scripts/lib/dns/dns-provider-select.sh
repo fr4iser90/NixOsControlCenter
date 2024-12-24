@@ -11,6 +11,12 @@ _DNS_PROVIDER_SELECT_LOADED=1
 # ==============================================
 
 select_dns_provider() {
+    # Prüfen ob providers Array existiert
+    if [ -z "${providers[*]}" ]; then
+        print_status "DNS provider list not loaded" "error"
+        return 1
+    fi
+
     print_status "Available DNS providers:" "info"
     
     # Create numbered list of providers
