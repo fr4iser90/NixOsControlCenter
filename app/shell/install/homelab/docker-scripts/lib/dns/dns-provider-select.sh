@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$(dirname "${BASH_SOURCE[0]}")/dns-providers-list.sh"
 
 # Provider Select Function
 # Returns: "provider_name|provider_code|env_vars"
@@ -34,4 +35,33 @@ select_dns_provider() {
         echo "No provider selected. Exiting." >&2
         return 1
     fi
+}
+
+# NEUE FUNKTION für die Credentials-Abfrage
+get_dns_credentials() {
+    local selected_provider=$(select_dns_provider)
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+
+    # Split provider info
+    IFS='|' read -r provider_name provider_code provider_vars <<< "$selected_provider"
+    
+    # Declare associative array for credentials
+    declare -A credentials
+    
+    # Get credentials for each variable
+    for var in $provider_vars; do
+        echo "Setting up $var..."
+        credentials[$var]=$(prompt_password "Enter value for $var")
+        # Export als Environment Variable
+        export "$var=${credentials[$var]}"
+    done
+
+    # Export provider info
+    export DNS_PROVIDER_NAME="$provider_name"
+    export DNS_PROVIDER_CODE="$provider_code"
+    
+    echo "Credentials configured for $provider_name"
+    return 0
 }
