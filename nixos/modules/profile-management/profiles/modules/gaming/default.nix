@@ -18,6 +18,7 @@
     owncloud-client
     # KDE
     kdePackages.kdeconnect-kde
+    kdePackages.krfb
   ];
 
   programs.steam.enable = true;
