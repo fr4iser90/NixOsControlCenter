@@ -49,7 +49,7 @@ get_dns_credentials() {
     local selected_provider=$(select_dns_provider)
     if [ $? -ne 0 ]; then
         return 1
-    }
+    fi
 
     # Split provider info
     IFS='|' read -r provider_name provider_code provider_vars <<< "$selected_provider"
