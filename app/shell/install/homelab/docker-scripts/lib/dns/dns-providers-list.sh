@@ -17,6 +17,8 @@ _DNS_PROVIDERS_LIST_LOADED=1
 # Display Name: Human readable name of the provider
 # identifier: Technical identifier used in scripts
 # ENV_VARx: Required environment variables for this provider
+# Declare array as global
+declare -ga providers
 
 providers=(
     # A
@@ -192,6 +194,9 @@ providers=(
     "Zone.ee zoneee ZONEEE_API_USER ZONEEE_API_KEY"
     "Zonomi zonomi ZONOMI_API_KEY"
 )
+
+# Debug output
+print_status "Loaded ${#providers[@]} DNS providers" "debug"
 
 # Optional: Validation function
 validate_provider() {

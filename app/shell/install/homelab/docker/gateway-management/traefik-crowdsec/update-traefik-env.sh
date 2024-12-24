@@ -74,7 +74,6 @@ update_cloudflare_config() {
 
 # Run if script is executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    if ! update_dns_configuration; then
-        exit 1
-    fi
+    # Initialize DNS configuration
+    update_dns_configuration || exit 1
 fi

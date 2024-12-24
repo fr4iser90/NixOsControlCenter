@@ -46,30 +46,19 @@ select_dns_provider() {
 
 # Get DNS credentials
 get_dns_credentials() {
-    local selected_provider=$(select_dns_provider)
-    if [ $? -ne 0 ]; then
-        return 1
-    fi
-
+    local selected_provider="$1"
+    
     # Split provider info (using space instead of |)
     IFS=' ' read -r provider_name provider_code provider_vars <<< "$selected_provider"
-    
-    # Declare associative array for credentials
-    declare -A credentials
     
     print_status "Configuring credentials for $provider_name" "info"
     
     # Get credentials for each variable
     for var in $provider_vars; do
         print_status "Setting up $var..." "info"
-        credentials[$var]=$(prompt_password "Enter value for $var")
-        # Export als Environment Variable
-        export "$var=${credentials[$var]}"
+        local cred=$(prompt_password "Enter value for $var")
+        export "$var=$cred"
     done
-
-    # Export provider info
-    export DNS_PROVIDER_NAME="$provider_name"
-    export DNS_PROVIDER_CODE="$provider_code"
     
     print_status "Credentials configured for $provider_name" "success"
     return 0
