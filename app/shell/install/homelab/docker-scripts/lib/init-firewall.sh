@@ -3,7 +3,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 source "${SCRIPT_DIR}/utils.sh"
 
-BASE_DIR="$DOCKER_BASE_DIR/gateway-management/traefik-crowdsec"
+TRAEFIK_CROWDSEC_BASE_DIR="$DOCKER_BASE_DIR/gateway-management/traefik-crowdsec"
 
 # Firewall Configuration Functions
 init_crowdsec_bouncer() {
@@ -21,7 +21,7 @@ init_crowdsec_bouncer() {
     new_values=(
         "CROWDSEC_BOUNCER_API_KEY:$CROWDSEC_API_KEY"
     )
-    update_env_file "$BASE_DIR" "traefik-crowdsec-bouncer.env" "${new_values[@]}"
+    update_env_file "$TRAEFIK_CROWDSEC_BASE_DIR" "traefik-crowdsec-bouncer.env" "${new_values[@]}"
     echo "CrowdSec Bouncer configured successfully."
 }
 
@@ -33,12 +33,12 @@ init_traefik_auth() {
 
     # Generate and update password
     local hashed_password=$(nix-shell -p apacheHttpd --run "htpasswd -nb $TRAEFIK_USERNAME '$TRAEFIK_PASSWORD' | cut -d ':' -f 2")
-    sed -i "s|\${TRAEFIKUSER}|\"$TRAEFIK_USERNAME:$hashed_password\"|g" "$BASE_DIR/traefik/dynamic_conf.yml"
+    sed -i "s|\${TRAEFIKUSER}|\"$TRAEFIK_USERNAME:$hashed_password\"|g" "$TRAEFIK_CROWDSEC_BASE_DIR/traefik/dynamic_conf.yml"
 }
 
 init_traefik_ssl() {
     validate_email || return 1
-    sed -i "s|\${CERTEMAIL}|$CERTEMAIL|g" "$BASE_DIR/traefik/traefik.yml"
+    sed -i "s|\${CERTEMAIL}|$CERTEMAIL|g" "$TRAEFIK_CROWDSEC_BASE_DIR/traefik/traefik.yml"
 }
 
 # Main execution
@@ -46,8 +46,8 @@ main() {
     echo "Initializing Firewall Configuration..."
 
     # Update environment files
-    "$BASE_DIR/update-crowdsec-env.sh" || exit 1
-    "$BASE_DIR/update-traefik-env.sh" || exit 1
+    "$TRAEFIK_CROWDSEC_BASE_DIR/update-crowdsec-env.sh" || exit 1
+    "$TRAEFIK_CROWDSEC_BASE_DIR/update-traefik-env.sh" || exit 1
     
     # Initialize Traefik security
     init_traefik_auth || exit 1
