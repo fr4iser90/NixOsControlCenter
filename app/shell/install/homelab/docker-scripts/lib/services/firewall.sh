@@ -19,12 +19,14 @@ _SECURITY_SERVICE_LOADED=1
 configure_crowdsec_bouncer() {
     print_status "Creating new bouncer key in CrowdSec..." "info"
     
+    local BOUNCER_NAME="traefik-crowdsec-bouncer"
+    
     # Separate Funktion für Bouncer-Key mit besserer Fehlerbehandlung
     local CROWDSEC_API_KEY
     CROWDSEC_API_KEY=$(docker exec crowdsec sh -c "
         cscli hub update && \
-        (cscli bouncers delete traefik-crowdsec-bouncer || true) && \
-        cscli bouncers add traefik-crowsec-bouncer
+        (cscli bouncers delete ${BOUNCER_NAME} || true) && \
+        cscli bouncers add ${BOUNCER_NAME}
     " | awk 'NR==3 {print $1}')
 
     # Prüfe ob Key generiert wurde
