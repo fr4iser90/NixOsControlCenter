@@ -1,27 +1,35 @@
 #!/bin/bash
 
-# Define management categories and their containers
-declare -A MANAGEMENT_CATEGORIES=(
-    ["adblocker-management"]="pihole"
-    ["dashboard-management"]="organizr"
-    ["gateway-management"]="traefik-crowdsec cloudflare-traefik-companion ddns-updater"
+# Guard gegen mehrfaches Laden
+if [ -n "${_CONTAINERS_LOADED+x}" ]; then
+    return 0
+fi
+_CONTAINERS_LOADED=1
+
+# Container Kategorien
+declare -gA MANAGEMENT_CATEGORIES=(
+    ["url-management"]="yourls"
     ["honeypot-management"]="tarpit"
     ["media-management"]="plex jellyfin"
-    ["password-management"]="bitwarden"
+    ["dashboard-management"]="organizr"
+    ["adblocker-management"]="pihole"
     ["storage-management"]="owncloud"
-    ["system-management"]="portainer watchtower"
-    ["url-management"]="yourls"
+    ["gateway-management"]="traefik-crowdsec cloudflare-traefik-companion ddns-updater traefik-companions"
+    ["password-management"]="bitwarden"
     ["vpn-management"]="wireguard"
+    ["system-management"]="portainer watchtower"
 )
 
-# Helper function to get category for a container
+# Get container category
 get_container_category() {
-    local container=$1
+    local container="$1"
+    
     for category in "${!MANAGEMENT_CATEGORIES[@]}"; do
-        if [[ " ${MANAGEMENT_CATEGORIES[$category]} " =~ " $container " ]]; then
+        if [[ "${MANAGEMENT_CATEGORIES[$category]}" =~ $container ]]; then
             echo "$category"
             return 0
         fi
     done
+    
     return 1
 }

@@ -7,7 +7,6 @@ DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 # Source core imports
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
-
 # Guard gegen mehrfaches Laden
 if [ -n "${_CROWDSEC_ENV_LOADED+x}" ]; then
     return 0
