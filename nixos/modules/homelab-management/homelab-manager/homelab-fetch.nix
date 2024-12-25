@@ -43,6 +43,7 @@ let
       exit 1
     fi
     
+    cd "$VIRT_HOME"
     cp -r "$TEMP_DIR/$HOMELAB_PATH"/* "$VIRT_HOME/"
     
     # Berechtigungen setzen für alle kopierten Dateien
@@ -52,7 +53,25 @@ let
     
     rm -rf "$TEMP_DIR"
     echo -e "''${GREEN}Homelab fetch completed successfully!''${NC}"
+
+        # Frage nach homelab-create
+    echo -e "''${YELLOW}Would you like to run homelab-create now? [Y/n]''${NC}"
+    read -r response
+    response=''${response:-Y}  # Default to Y if empty
+    
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+      if command -v homelab-create &> /dev/null; then
+        echo -e "''${GREEN}Starting homelab-create...''${NC}"
+        homelab-create
+      else
+        echo -e "''${RED}homelab-create command not found!''${NC}"
+        exit 1
+      fi
+    else
+      echo -e "''${YELLOW}Skipping homelab-create. You can run it later with: homelab-create''${NC}"
+    fi
   '';
+
 
 in {
   # Nur Pakete installieren wenn es einen Virtualisierungsbenutzer gibt
