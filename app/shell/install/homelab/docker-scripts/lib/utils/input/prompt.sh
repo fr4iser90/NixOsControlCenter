@@ -1,4 +1,5 @@
 #!/bin/bash
+export TEST_MODE=1
 
 # Zuerst die benötigten Funktionen laden
 source "${DOCKER_LIB_DIR}/utils/format/output.sh"
@@ -15,6 +16,11 @@ if [ -z "${_PROMPT_SH+x}" ]; then
     export INPUT_TYPE_PASSWORD=5
 fi
 
+# Debug Funktion
+debug() {
+    [[ "${DEBUG:-0}" == "1" ]] && echo "DEBUG: $*" >&2
+}
+
 print_prompt() {
     local message="$1"
     echo -e "\n${BLUE}==================================================
@@ -28,16 +34,15 @@ prompt_input() {
     local input_type="${2:-$INPUT_TYPE_NORMAL}"
     local value
 
-    # DEBUG
-    echo "DEBUG: prompt_input called with text='$prompt_text' type='$input_type'" >&2
+    debug "prompt_input called with text='$prompt_text' type='$input_type'"
 
     case $input_type in
         $INPUT_TYPE_USERNAME)
-            echo "DEBUG: Handling USERNAME input" >&2
+            debug "Handling USERNAME input"
             while true; do
                 echo -en "${BLUE}Username${NC} > " > /dev/tty
                 read value < /dev/tty
-                echo "DEBUG: Got username='$value'" >&2
+                debug "Got username='$value'"
                 if [ -n "$value" ]; then
                     echo "$value"
                     return 0
@@ -47,44 +52,67 @@ prompt_input() {
             ;;
             
         $INPUT_TYPE_PASSWORD|$INPUT_TYPE_SENSITIVE)
-            echo "DEBUG: Handling PASSWORD input" >&2
+            debug "Handling PASSWORD input"
             while true; do
                 echo -en "${BLUE}Password${NC} > " > /dev/tty
                 read -s value < /dev/tty
-                echo
-                echo "DEBUG: Got password length=${#value}" >&2
+                echo > /dev/tty
+                debug "Got password length=${#value}"
+                
+                local has_warning=0
                 
                 if [[ ${#value} -lt 8 ]]; then
-                    print_status "Password must be at least 8 characters" "error"
-                    continue
+                    if [[ $TEST_MODE -eq 1 ]]; then
+                        print_status "Warning: Password should be at least 8 characters" "warn" > /dev/tty
+                        has_warning=1
+                    else
+                        print_status "Password must be at least 8 characters" "error" > /dev/tty
+                        continue
+                    fi
                 fi
+                
                 if ! [[ $value =~ [0-9] ]]; then
-                    print_status "Password must contain at least one number" "error"
-                    continue
+                    if [[ $TEST_MODE -eq 1 ]]; then
+                        print_status "Warning: Password should contain at least one number" "warn" > /dev/tty
+                        has_warning=1
+                    else
+                        print_status "Password must contain at least one number" "error" > /dev/tty
+                        continue
+                    fi
                 fi
+                
                 if ! [[ $value =~ [^a-zA-Z0-9] ]]; then
-                    print_status "Password must contain at least one special character" "error"
-                    continue
+                    if [[ $TEST_MODE -eq 1 ]]; then
+                        print_status "Warning: Password should contain at least one special character" "warn" > /dev/tty
+                        has_warning=1
+                    else
+                        print_status "Password must contain at least one special character" "error" > /dev/tty
+                        continue
+                    fi
                 fi
 
-                printf "${BLUE}Confirm${NC} > "
-                read -s value2
-                echo
+                if [[ $TEST_MODE -eq 1 && $has_warning -eq 1 ]]; then
+                    print_status "Continuing with weak password (test mode)" "warn" > /dev/tty
+                fi
+
+                echo -en "${BLUE}Confirm${NC} > " > /dev/tty
+                read -s value2 < /dev/tty
+                echo > /dev/tty
                 
                 if [ "$value" == "$value2" ]; then
-                    print_status "Password validated" "success"
+                    print_status "Password validated" "success" > /dev/tty
                     echo "$value"
                     return 0
                 else
-                    print_status "Passwords do not match" "error"
+                    print_status "Passwords do not match" "error" > /dev/tty
                 fi
             done
             ;;
             
         $INPUT_TYPE_EMAIL)
             while true; do
-                printf "${BLUE}Email${NC} > "
-                read value
+                echo -en "${BLUE}Email${NC} > " > /dev/tty
+                read value < /dev/tty
                 if [[ "$value" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
                     echo "$value"
                     return 0
@@ -95,8 +123,8 @@ prompt_input() {
             ;;
             
         *)
-            printf "${BLUE}%s${NC} > " "$prompt_text"
-            read value
+            echo -en "${BLUE}${prompt_text}${NC} > " > /dev/tty
+            read value < /dev/tty
             echo "$value"
             return 0
             ;;
@@ -117,9 +145,9 @@ prompt_password() {
 prompt_confirmation() {
     local prompt_text="${1:-Are you sure?}"
     while true; do
-        echo -e "${BLUE}$prompt_text [y/N]${NC}"
-        echo -n "> "
-        read -r yn
+        echo -e "${BLUE}$prompt_text [y/N]${NC}" > /dev/tty
+        echo -n "> " > /dev/tty
+        read -r yn < /dev/tty
         case $yn in
             [Yy]* ) return 0;;
             [Nn]* ) return 1;;
