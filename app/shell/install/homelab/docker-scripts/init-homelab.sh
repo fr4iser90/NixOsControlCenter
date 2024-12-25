@@ -52,6 +52,23 @@ if ! setup_permissions; then
     exit 1
 fi
 
+# Port-Forwarding Info
+print_header "Network Setup"
+print_status "The following ports need to be forwarded in your router:" "info"
+list_required_ports
+
+if prompt_confirmation "Would you like to open your router configuration page now?"; then
+    if ! find_router; then
+        print_status "Could not open router page automatically" "warn"
+        print_status "Please configure port forwarding manually" "info"
+    else
+        print_status "Please configure the listed ports in your router" "info"
+        if prompt_confirmation "Continue when port forwarding is configured?"; then
+            test_port_forwarding
+        fi
+    fi
+fi
+
 # Initialize security infrastructure
 print_status "Initializing security infrastructure..." "info"
 if ! initialize_security; then
