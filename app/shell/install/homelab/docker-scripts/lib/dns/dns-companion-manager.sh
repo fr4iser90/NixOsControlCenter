@@ -12,8 +12,7 @@ update_companion_config() {
         if [[ "$provider_code" == "$comp_provider" ]]; then
             print_status "Updating Traefik $comp_name companion..." "info"
 
-            # Direkt den vollen Pfad verwenden!
-            local COMPANION_DIR="$DOCKER_BASE_DIR/gateway-management/traefik-companions/$comp_name"
+            local COMPANION_DIR=$(get_docker_dir "$comp_name")
 
             if [ ! -f "$COMPANION_DIR/update-env.sh" ]; then
                 print_status "Update script not found at: $COMPANION_DIR/update-env.sh" "error"
