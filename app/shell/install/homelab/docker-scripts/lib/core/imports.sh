@@ -35,6 +35,7 @@ source "${DOCKER_LIB_DIR}/utils/system/string.sh"
 # Services
 source "${DOCKER_LIB_DIR}/services/docker.sh"
 source "${DOCKER_LIB_DIR}/services/init-gateway.sh"
+source "${DOCKER_LIB_DIR}/services/init-services.sh"
 source "${DOCKER_LIB_DIR}/services/permissions.sh"
 
 # DNS

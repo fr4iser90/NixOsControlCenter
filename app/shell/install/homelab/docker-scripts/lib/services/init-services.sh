@@ -19,7 +19,7 @@ initialize_services() {
     if ! command -v fzf >/dev/null 2>&1; then
         print_status "FZF is not installed. Please install it first." "error"
         return 1
-    }
+    fi
 
     # Erstelle Service-Liste für FZF
     local services=()
