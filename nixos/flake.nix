@@ -41,8 +41,8 @@
       # Homelab management
       ./modules/homelab-management
     
-      # Local overrides (loaded last)
-      ./local
+#      # Local overrides (loaded last)
+#      ./local
     ];
 
 
