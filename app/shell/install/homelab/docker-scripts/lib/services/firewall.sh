@@ -1,10 +1,8 @@
 #!/bin/bash
 
-
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 
-# Source core imports
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Guard gegen mehrfaches Laden
@@ -45,14 +43,24 @@ configure_traefik_auth() {
     local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
     
     # Get credentials with better prompts
-    print_prompt "Traefik Dashboard Credentials"
+    print_prompt "Traefik Dashboard Access"
     print_status "These credentials will be used to access the Traefik dashboard" "info"
-    print_status "Please provide a username and password" "info"
+    echo
+
+    # USERNAME
+    print_status "Step 1: Create Username" "info"
+    print_status "Choose a username for the dashboard login" "info"
     echo
     
     local username
-    username=$(prompt_input "Enter dashboard username (e.g. admin)" $INPUT_TYPE_NORMAL)
-    
+    print_status "Enter username" "input"
+    echo -e -n "${CYAN}Username${NC} > "
+    read username
+    echo
+
+    # PASSWORD
+    print_status "Step 2: Create Password" "info"
+    print_status "Choose a secure password for the dashboard login" "info"
     print_status "Password requirements:" "info"
     print_status "- Minimum 8 characters" "info"
     print_status "- At least one number" "info"
@@ -60,13 +68,26 @@ configure_traefik_auth() {
     echo
     
     local password
-    password=$(prompt_input "Enter dashboard password" $INPUT_TYPE_SENSITIVE)
+    print_status "Enter password" "input"
+    echo -e -n "${CYAN}Password${NC} > "
+    read -s password
+    echo
+    print_status "Confirm password" "input"
+    echo -e -n "${CYAN}Confirm${NC} > "
+    read -s password2
+    echo
 
+    if [ "$password" != "$password2" ]; then
+        print_status "Passwords do not match!" "error"
+        return 1
+    fi
+
+    print_status "Password validated" "success"
     print_status "Generating secure password hash..." "info"
     
     # Generate hashed password
     local hashed_password
-    hashed_password=$(nix-shell -p apacheHttpd --run "htpasswd -nbB $username '$password' | cut -d ':' -f 2")
+    hashed_password=$(nix-shell -p apacheHttpd --command "htpasswd -nbB \"$username\" \"$password\"" | cut -d ':' -f 2)
     
     if [ -z "$hashed_password" ]; then
         print_status "Failed to generate password hash" "error"
@@ -78,6 +99,9 @@ configure_traefik_auth() {
         "$TRAEFIK_DIR/traefik/dynamic_conf.yml"
         
     print_status "Traefik authentication configured successfully" "success"
+    print_status "You can now login with:" "info"
+    print_status "Username: $username" "info"
+    echo
     return 0
 }
 

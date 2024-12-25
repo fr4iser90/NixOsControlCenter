@@ -16,7 +16,7 @@ print_header() {
 # Print status message with icon
 print_status() {
     local message="$1"
-    local status="${2:-info}"  # info, success, warning, error
+    local status="${2:-info}"  # info, success, warning, error, input
     
     case "$status" in
         success)
@@ -27,6 +27,9 @@ print_status() {
             ;;
         error)
             echo -e "${ERROR} ✗ $message"
+            ;;
+        input)
+            echo -e "${PROMPT} ⌨ $message"  
             ;;
         *)
             echo -e "${INFO} ℹ $message"

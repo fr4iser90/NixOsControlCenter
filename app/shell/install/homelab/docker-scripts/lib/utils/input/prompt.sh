@@ -28,29 +28,32 @@ prompt_input() {
     case $input_type in
         $INPUT_TYPE_SENSITIVE)
             while true; do
-                echo -n "> "
+                print_status "Enter password" "input"
+                echo -n "${PROMPT} Password > "
                 read -s value
                 echo
-                echo -n "Confirm > "
+                print_status "Confirm password" "input"
+                echo -n "${PROMPT} Confirm > "
                 read -s value2
                 echo
                 
                 if [ "$value" == "$value2" ]; then
-                    print_status "Validated" "success"
+                    print_status "Password validated" "success"
                     echo "$value"
                     return 0
                 else
-                    print_status "Values do not match. Please try again." "error"
+                    print_status "Passwords do not match. Please try again." "error"
                 fi
             done
             ;;
             
         $INPUT_TYPE_EMAIL)
             while true; do
-                echo -n "> "
+                print_status "Enter email" "input"
+                echo -n "${PROMPT} Email > "
                 read value
                 if [[ "$value" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
-                    print_status "Valid email" "success"
+                    print_status "Email validated" "success"
                     echo "$value"
                     return 0
                 else
@@ -60,7 +63,8 @@ prompt_input() {
             ;;
             
         *)
-            echo -n "> "
+            print_status "Enter value" "input"
+            echo -n "${PROMPT} Input > "
             read value
             echo "$value"
             return 0
