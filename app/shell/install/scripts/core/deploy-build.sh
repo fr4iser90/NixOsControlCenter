@@ -86,8 +86,6 @@ show_homelab_completion_message() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         su - "${virt_user}"
     fi
-    cd ~/home/${virt_user}/docker
-    bash start.sh
     return 0
 }
 

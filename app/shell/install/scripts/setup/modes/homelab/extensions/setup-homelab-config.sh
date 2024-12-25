@@ -197,21 +197,34 @@ get_virt_password() {
     while true; do
         read -esp $'\033[0;34m[?]\033[0m Enter custom password (or press enter for random): ' password
         echo
-        
+
+        # Wenn Enter gedrückt wurde, nutze Zufallspasswort
         if [[ -z "$password" ]]; then
             log_success "Using random password"
-            virt_password="$default_password"  # Hier setzen!
+            virt_password="$default_password"
             return 0
         fi
-        
-        if [[ "${#password}" -ge 8 ]]; then
-            log_success "Using custom password"
-            virt_password="$password"  # Hier setzen!
-            return 0
+
+        # Prüfe Passwortlänge
+        if [[ "${#password}" -lt 8 ]]; then
+            log_error "Password must be at least 8 characters"
+            sleep 1
+            continue
+        fi
+
+        # Bestätigung des Passworts
+        read -esp $'\033[0;34m[?]\033[0m Confirm password: ' password_confirm
+        echo
+
+        if [[ "$password" != "$password_confirm" ]]; then
+            log_error "Passwords do not match!"
+            sleep 1
+            continue
         fi
         
-        log_error "Password must be at least 8 characters"
-        sleep 1
+        log_success "Using custom password"
+        virt_password="$password"
+        return 0
     done
 }
 

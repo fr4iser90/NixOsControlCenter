@@ -42,14 +42,34 @@ initialize_services() {
 
     # FZF Multi-Select mit Preview
     print_status "Select services to install (SPACE to select, ENTER to confirm):" "info"
+
+    # Erstelle temporäre Preview-Funktion
+    preview_service() {
+        local selection="$1"
+        local category="${selection%%:*}"
+        local service="${selection#*:}"
+        local readme="${DOCKER_BASE_DIR}/${category}/${service}/README.md"
+        
+        if [ -f "$readme" ]; then
+            cat "$readme"
+        else
+            echo "No description available for $service"
+        fi
+    }
+    export -f preview_service
+
     local selected
     selected=$(printf '%s\n' "${services[@]}" | fzf --multi \
-        --header 'Use SPACE to select/unselect services, ENTER to confirm' \
-        --preview 'echo {} | cut -d: -f2 | xargs -I% sh -c '\''
-            cat "'"${DOCKER_BASE_DIR}"'/$(echo {} | cut -d: -f1)/%/README.md" 2>/dev/null || 
-            echo "No description available for %"
-        '\'' \
-        --preview-window=right:50%)
+        --header='Use SPACE to deselect services, ENTER to confirm' \
+        --bind 'space:toggle+down' \
+        --bind 'tab:toggle' \
+        --bind 'ctrl-a:toggle-all' \
+        --preview 'bash -c "preview_service {}"' \
+        --preview-window="right:50%:wrap" \
+        --pointer="▶" \
+        --marker="✓" \
+        --reverse \
+        --all)
 
     if [ -z "$selected" ]; then
         print_status "No services selected" "warn"
