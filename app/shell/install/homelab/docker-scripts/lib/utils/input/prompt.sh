@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Zuerst die benötigten Funktionen laden
-source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+source "${DOCKER_LIB_DIR}/utils/format/output.sh"
 
 # Guard against multiple inclusion
 if [ -z "${_PROMPT_SH+x}" ]; then
