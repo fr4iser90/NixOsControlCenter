@@ -42,7 +42,7 @@
       ./modules/homelab-management
     
       # Local overrides (loaded last)
-      ./local/modules
+      ./local
     ];
 
 
