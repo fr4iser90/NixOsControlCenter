@@ -41,28 +41,15 @@ configure_traefik_auth() {
     print_header "Configuring Traefik Authentication"
     print_prompt "Traefik Dashboard Access"
     
-    # ERST alle Info-Meldungen
     print_status "These credentials will be used to access the Traefik dashboard" "info"
-    print_status "Step 1: Create Username" "info"
-    print_status "Choose a username for the dashboard login" "info"
-    echo
-
-    # DANN Username-Eingabe
-    local username
-    username=$(prompt_input "Username for dashboard")
     
-    # DANN alle Password-Info-Meldungen
-    print_status "Step 2: Create Password" "info"
-    print_status "Choose a secure password for the dashboard login" "info"
-    print_status "Password requirements:" "info"
-    print_status "- Minimum 8 characters" "info"
-    print_status "- At least one number" "info"
-    print_status "- At least one special character" "info"
-    echo
-
-    # DANN Passwort-Eingabe
+    # Username-Eingabe mit zentraler Logik
+    local username
+    username=$(prompt_input "Username: " $INPUT_TYPE_USERNAME)
+    
+    # Passwort-Eingabe mit zentraler Logik
     local password
-    password=$(prompt_input "" $INPUT_TYPE_SENSITIVE)
+    password=$(prompt_input "Password: " $INPUT_TYPE_PASSWORD)
 
     print_status "Generating secure password hash..." "info"
     

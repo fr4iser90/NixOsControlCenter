@@ -11,6 +11,8 @@ if [ -z "${_PROMPT_SH+x}" ]; then
     export INPUT_TYPE_NORMAL=1
     export INPUT_TYPE_SENSITIVE=2
     export INPUT_TYPE_EMAIL=3
+    export INPUT_TYPE_USERNAME=4
+    export INPUT_TYPE_PASSWORD=5
 fi
 
 print_prompt() {
@@ -26,12 +28,31 @@ prompt_input() {
     local input_type="${2:-$INPUT_TYPE_NORMAL}"
     local value
 
+    # DEBUG
+    echo "DEBUG: prompt_input called with text='$prompt_text' type='$input_type'" >&2
+
     case $input_type in
-        $INPUT_TYPE_SENSITIVE)
+        $INPUT_TYPE_USERNAME)
+            echo "DEBUG: Handling USERNAME input" >&2
             while true; do
-                echo -n "Password > "
-                read -s value
+                echo -en "${BLUE}Username${NC} > " > /dev/tty
+                read value < /dev/tty
+                echo "DEBUG: Got username='$value'" >&2
+                if [ -n "$value" ]; then
+                    echo "$value"
+                    return 0
+                fi
+                print_status "Username cannot be empty" "error"
+            done
+            ;;
+            
+        $INPUT_TYPE_PASSWORD|$INPUT_TYPE_SENSITIVE)
+            echo "DEBUG: Handling PASSWORD input" >&2
+            while true; do
+                echo -en "${BLUE}Password${NC} > " > /dev/tty
+                read -s value < /dev/tty
                 echo
+                echo "DEBUG: Got password length=${#value}" >&2
                 
                 if [[ ${#value} -lt 8 ]]; then
                     print_status "Password must be at least 8 characters" "error"
@@ -46,7 +67,7 @@ prompt_input() {
                     continue
                 fi
 
-                echo -n "Confirm > "
+                printf "${BLUE}Confirm${NC} > "
                 read -s value2
                 echo
                 
@@ -62,7 +83,7 @@ prompt_input() {
             
         $INPUT_TYPE_EMAIL)
             while true; do
-                echo -n "Email > "
+                printf "${BLUE}Email${NC} > "
                 read value
                 if [[ "$value" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
                     echo "$value"
@@ -74,7 +95,7 @@ prompt_input() {
             ;;
             
         *)
-            echo -n "Username > "
+            printf "${BLUE}%s${NC} > " "$prompt_text"
             read value
             echo "$value"
             return 0
@@ -90,7 +111,7 @@ prompt_email() {
 
 prompt_password() {
     local prompt_text="${1:-Enter password}"
-    prompt_input "$prompt_text" $INPUT_TYPE_SENSITIVE
+    prompt_input "$prompt_text" $INPUT_TYPE_PASSWORD
 }
 
 prompt_confirmation() {
