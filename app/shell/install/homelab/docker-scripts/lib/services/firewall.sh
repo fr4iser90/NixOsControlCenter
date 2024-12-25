@@ -34,6 +34,7 @@ configure_crowdsec_bouncer() {
     fi
 
     print_status "Successfully generated bouncer key" "success"
+    print_status "New CrowdSec Bouncer Token: $CROWDSEC_API_KEY" "info"
 
     # Update bouncer configuration
     local TRAEFIK_DIR
