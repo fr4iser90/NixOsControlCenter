@@ -28,7 +28,7 @@ update_dns_configuration() {
     # 4. Update DDNS configuration
     print_status "Updating DDNS configuration..." "info"
     local DDNS_DIR=$(get_docker_dir "ddns-updater")
-    if ! bash "$DDNS_DIR/update-dns-env.sh" || ! bash "$DDNS_DIR/update-dns-conf.sh"; then
+    if ! bash "$DDNS_DIR/update-ddns-env.sh" || ! bash "$DDNS_DIR/update-ddns-config.sh"; then
         print_status "Failed to update DDNS configuration" "error"
         return 1
     fi
