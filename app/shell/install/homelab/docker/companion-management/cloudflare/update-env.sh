@@ -20,8 +20,14 @@ if ! validate_domain; then
 fi
 
 # Get current directory
-BASE_DIR=$(dirname "$SCRIPT_PATH")
+SERVICE_NAME="cloudflare"
 ENV_FILE="cloudflare-companion.env"
+
+BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
+if [ $? -ne 0 ]; then
+    print_status "Failed to get $SERVICE_NAME directory" "error"
+    exit 1
+fi
 
 # Verwende die bereits vorhandenen Umgebungsvariablen
 print_status "Using existing Cloudflare credentials..." "info"

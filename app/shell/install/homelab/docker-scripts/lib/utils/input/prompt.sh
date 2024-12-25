@@ -10,6 +10,13 @@ if [ -z "${_PROMPT_SH+x}" ]; then
     export INPUT_TYPE_EMAIL=3
 fi
 
+print_prompt() {
+    local message="$1"
+    echo -e "\n${BLUE}==================================================
+        $message        
+==================================================${NC}\n"
+}
+
 # Generic input prompt with validation
 prompt_input() {
     local prompt_text="$1"
