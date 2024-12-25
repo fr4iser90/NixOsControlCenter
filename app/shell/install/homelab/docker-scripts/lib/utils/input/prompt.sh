@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Zuerst die benötigten Funktionen laden
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+
 # Guard against multiple inclusion
 if [ -z "${_PROMPT_SH+x}" ]; then
     _PROMPT_SH=1
@@ -23,17 +26,27 @@ prompt_input() {
     local input_type="${2:-$INPUT_TYPE_NORMAL}"
     local value
 
-    echo -e "${BLUE}$prompt_text${NC}"
-    
     case $input_type in
         $INPUT_TYPE_SENSITIVE)
             while true; do
-                print_status "Enter password" "input"
-                echo -n "${PROMPT} Password > "
+                echo -n "Password > "
                 read -s value
                 echo
-                print_status "Confirm password" "input"
-                echo -n "${PROMPT} Confirm > "
+                
+                if [[ ${#value} -lt 8 ]]; then
+                    print_status "Password must be at least 8 characters" "error"
+                    continue
+                fi
+                if ! [[ $value =~ [0-9] ]]; then
+                    print_status "Password must contain at least one number" "error"
+                    continue
+                fi
+                if ! [[ $value =~ [^a-zA-Z0-9] ]]; then
+                    print_status "Password must contain at least one special character" "error"
+                    continue
+                fi
+
+                echo -n "Confirm > "
                 read -s value2
                 echo
                 
@@ -42,29 +55,26 @@ prompt_input() {
                     echo "$value"
                     return 0
                 else
-                    print_status "Passwords do not match. Please try again." "error"
+                    print_status "Passwords do not match" "error"
                 fi
             done
             ;;
             
         $INPUT_TYPE_EMAIL)
             while true; do
-                print_status "Enter email" "input"
-                echo -n "${PROMPT} Email > "
+                echo -n "Email > "
                 read value
                 if [[ "$value" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
-                    print_status "Email validated" "success"
                     echo "$value"
                     return 0
                 else
-                    print_status "Invalid email format. Please try again." "error"
+                    echo "Invalid email format. Please try again."
                 fi
             done
             ;;
             
         *)
-            print_status "Enter value" "input"
-            echo -n "${PROMPT} Input > "
+            echo -n "Username > "
             read value
             echo "$value"
             return 0
@@ -92,7 +102,7 @@ prompt_confirmation() {
         case $yn in
             [Yy]* ) return 0;;
             [Nn]* ) return 1;;
-            * ) print_status "Please answer yes or no." "warning";;
+            * ) echo "Please answer yes or no."
         esac
     done
 }

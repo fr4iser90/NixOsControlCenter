@@ -39,26 +39,19 @@ configure_crowdsec_bouncer() {
 # Traefik Security Configuration
 configure_traefik_auth() {
     print_header "Configuring Traefik Authentication"
-    
-    local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
-    
-    # Get credentials with better prompts
     print_prompt "Traefik Dashboard Access"
+    
+    # ERST alle Info-Meldungen
     print_status "These credentials will be used to access the Traefik dashboard" "info"
-    echo
-
-    # USERNAME
     print_status "Step 1: Create Username" "info"
     print_status "Choose a username for the dashboard login" "info"
     echo
-    
-    local username
-    print_status "Enter username" "input"
-    echo -e -n "${CYAN}Username${NC} > "
-    read username
-    echo
 
-    # PASSWORD
+    # DANN Username-Eingabe
+    local username
+    username=$(prompt_input "Username for dashboard")
+    
+    # DANN alle Password-Info-Meldungen
     print_status "Step 2: Create Password" "info"
     print_status "Choose a secure password for the dashboard login" "info"
     print_status "Password requirements:" "info"
@@ -66,23 +59,11 @@ configure_traefik_auth() {
     print_status "- At least one number" "info"
     print_status "- At least one special character" "info"
     echo
-    
+
+    # DANN Passwort-Eingabe
     local password
-    print_status "Enter password" "input"
-    echo -e -n "${CYAN}Password${NC} > "
-    read -s password
-    echo
-    print_status "Confirm password" "input"
-    echo -e -n "${CYAN}Confirm${NC} > "
-    read -s password2
-    echo
+    password=$(prompt_input "" $INPUT_TYPE_SENSITIVE)
 
-    if [ "$password" != "$password2" ]; then
-        print_status "Passwords do not match!" "error"
-        return 1
-    fi
-
-    print_status "Password validated" "success"
     print_status "Generating secure password hash..." "info"
     
     # Generate hashed password
