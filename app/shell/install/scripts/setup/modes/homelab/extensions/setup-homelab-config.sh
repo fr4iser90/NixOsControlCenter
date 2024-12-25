@@ -11,7 +11,7 @@ setup_homelab_config() {
     email="${HOST_EMAIL:-}"
     domain="${HOST_DOMAIN:-}"
     cert_email="${CERT_EMAIL:-}"
-     enable_desktop="${ENABLE_DESKTOP:-true}" 
+    enable_desktop="${ENABLE_DESKTOP:-true}" 
 
     # Optional: Debug output
     echo "Debug: Admin user set to: ${admin_user}"
