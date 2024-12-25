@@ -71,7 +71,7 @@ fi
 
 # Initialize security infrastructure
 print_status "Initializing security infrastructure..." "info"
-if ! initialize_security; then
+if ! initialize_gateway; then
     print_status "Failed to initialize security infrastructure" "error"
     exit 1
 fi
