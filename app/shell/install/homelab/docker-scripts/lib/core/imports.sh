@@ -25,6 +25,7 @@ source "${DOCKER_LIB_DIR}/utils/input/validation.sh"
 source "${DOCKER_LIB_DIR}/utils/security/credentials.sh"
 source "${DOCKER_LIB_DIR}/utils/security/crypto.sh"
 source "${DOCKER_LIB_DIR}/utils/security/hash.sh"
+source "${DOCKER_LIB_DIR}/utils/security/credentials-manager.sh"
 
 # Utils - System
 source "${DOCKER_LIB_DIR}/utils/system/file.sh"

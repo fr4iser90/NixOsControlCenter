@@ -63,6 +63,9 @@ initialize_services() {
         
         print_status "Initializing $service..." "info"
         
+        # Setze CURRENT_SERVICE für Auto-Credentials
+        export CURRENT_SERVICE="$service"
+        
         # Update Environment
         local service_dir="${DOCKER_BASE_DIR}/${category}/${service}"
         if [ -f "${service_dir}/update-env.sh" ]; then
@@ -80,6 +83,11 @@ initialize_services() {
 
         print_status "$service initialized successfully" "success"
     done <<< "$selected"
+
+    # Finalisiere Credentials wenn Auto-Setup aktiv war
+    if [ "$AUTO_SETUP" -eq 1 ]; then
+        finalize_credentials_file
+    fi
 
     print_status "All selected services have been initialized" "success"
     return 0

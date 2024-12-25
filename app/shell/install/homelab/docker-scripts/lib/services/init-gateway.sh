@@ -104,6 +104,12 @@ configure_traefik_ssl() {
 initialize_gateway() {
     print_status "Initializing security infrastructure..." "info"
 
+    # Auto-Setup Check am Anfang
+    if prompt_confirmation "Enable automatic credential generation?"; then
+        export AUTO_SETUP=1
+        init_credentials_file
+    fi
+
     local TRAEFIK_DIR=$(get_docker_dir "traefik-crowdsec")
     local DDNS_DIR=$(get_docker_dir "ddns-updater")
     
@@ -153,6 +159,11 @@ initialize_gateway() {
 
     # Restart to apply changes
     restart_docker_container "traefik-crowdsec" || return 1
+
+    # Finalisiere Credentials wenn Auto-Setup aktiv war
+    if [ "$AUTO_SETUP" -eq 1 ]; then
+        finalize_credentials_file
+    fi
 
     print_status "Security infrastructure initialized successfully" "success"
     return 0

@@ -1,8 +1,9 @@
 #!/bin/bash
 export TEST_MODE=1
-
+#export AUTO_SETUP=0
 # Zuerst die benötigten Funktionen laden
 source "${DOCKER_LIB_DIR}/utils/format/output.sh"
+source "${DOCKER_LIB_DIR}/utils/security/credentials-manager.sh"
 
 # Guard against multiple inclusion
 if [ -z "${_PROMPT_SH+x}" ]; then
@@ -35,6 +36,31 @@ prompt_input() {
     local value
 
     debug "prompt_input called with text='$prompt_text' type='$input_type'"
+
+    # Auto-Setup für USERNAME und PASSWORD
+    if [ "$AUTO_SETUP" -eq 1 ]; then
+        case $input_type in
+            $INPUT_TYPE_USERNAME)
+                value="auto_user_$(generate_random_string 8)"
+                print_status "Auto-generated username" "info"
+                # Speichere temporär für spätere Verwendung
+                CURRENT_USERNAME="$value"
+                echo "$value"
+                return 0
+                ;;
+            $INPUT_TYPE_PASSWORD)
+                value=$(generate_secure_password)
+                print_status "Auto-generated password" "info"
+                # Speichere Credentials wenn Username vorhanden
+                if [ -n "$CURRENT_SERVICE" ] && [ -n "$CURRENT_USERNAME" ]; then
+                    store_service_credentials "$CURRENT_SERVICE" "$CURRENT_USERNAME" "$value"
+                    unset CURRENT_USERNAME
+                fi
+                echo "$value"
+                return 0
+                ;;
+        esac
+    fi
 
     case $input_type in
         $INPUT_TYPE_USERNAME)
