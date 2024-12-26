@@ -5,6 +5,9 @@
     gamescope
     mangohud
     gamemode
+    lutris
+    wine
+    winetricks
     # Communication
     vesktop
     noisetorch
