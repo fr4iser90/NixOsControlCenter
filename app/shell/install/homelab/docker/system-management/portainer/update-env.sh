@@ -4,26 +4,27 @@
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 
-# Verify and source script-header
-if [ ! -f "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh" ]; then
-    echo "Error: Cannot find script-header.sh"
-    echo "Expected at: ${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
-    exit 1
+# Source core imports
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+
+# Guard gegen mehrfaches Laden
+if [ -n "${_PORTAINER_COMPOSE_LOADED+x}" ]; then
+    return 0
 fi
+_PORTAINER_COMPOSE_LOADED=1
 
-source "${DOCKER_SCRIPTS_DIR}/lib/core/script-header.sh"
+# Script configuration
+SERVICE_NAME="portainer"
+COMPOSE_FILE="docker-compose.yml"
 
-# Script logic
 print_header "Updating Portainer Configuration"
 
-# Get container directory
-BASE_DIR=$(get_docker_dir "portainer")
+# Get service directory
+BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
 if [ $? -ne 0 ]; then
-    print_status "Failed to get portainer directory" "error"
+    print_status "Failed to get $SERVICE_NAME directory" "error"
     exit 1
 fi
-
-COMPOSE_FILE="docker-compose.yml"
 
 # Get user info
 print_status "Getting user information..." "info"

@@ -1,16 +1,30 @@
 #!/bin/bash
 
+# Standard script setup
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 
+# Source core imports
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
+# Guard gegen mehrfaches Laden
 if [ -n "${_CLOUDFLARE_COMPANION_LOADED+x}" ]; then
     return 0
 fi
 _CLOUDFLARE_COMPANION_LOADED=1
 
+# Script configuration
+SERVICE_NAME="cloudflare"
+ENV_FILE="cloudflare-companion.env"
+
 print_header "Updating Cloudflare Companion Configuration"
+
+# Get service directory
+BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
+if [ $? -ne 0 ]; then
+    print_status "Failed to get $SERVICE_NAME directory" "error"
+    exit 1
+fi
 
 # Validate domain
 print_status "Validating domain..." "info"
@@ -19,17 +33,30 @@ if ! validate_domain; then
     exit 1
 fi
 
-# Get current directory
-SERVICE_NAME="cloudflare"
-ENV_FILE="cloudflare-companion.env"
+# Validate Cloudflare credentials
+print_status "Validating Cloudflare credentials..." "info"
 
-BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
-if [ $? -ne 0 ]; then
-    print_status "Failed to get $SERVICE_NAME directory" "error"
-    exit 1
+# Email validation
+if [[ ! "$CF_API_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
+    print_status "Invalid Cloudflare email format: $CF_API_EMAIL" "warn"
+    print_status "Skipping Cloudflare configuration" "warn"
+    exit 0
 fi
 
-# Verwende die bereits vorhandenen Umgebungsvariablen
+# API Key validation (basic length check)
+if [[ ${#CF_API_KEY} -lt 30 ]]; then
+    print_status "Cloudflare API key seems too short" "warn"
+    print_status "Skipping Cloudflare configuration" "warn"
+    exit 0
+fi
+
+# Zone ID validation (basic format check)
+if [[ ! "$CF_ZONE_ID" =~ ^[a-f0-9]{32}$ ]]; then
+    print_status "Invalid Cloudflare Zone ID format" "warn"
+    print_status "Skipping Cloudflare configuration" "warn"
+    exit 0
+fi
+
 print_status "Using existing Cloudflare credentials..." "info"
 
 # Update environment file
@@ -43,7 +70,6 @@ new_values=(
 
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Cloudflare configuration updated successfully" "success"
-    exit 0
 else
     print_status "Failed to update Cloudflare configuration" "error"
     exit 1

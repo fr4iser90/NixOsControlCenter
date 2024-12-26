@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Source core imports
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Guard gegen mehrfaches Laden
@@ -9,11 +13,17 @@ fi
 _PIHOLE_ENV_LOADED=1
 
 # Script configuration
-SERVICE_NAME="pihole"
-ENV_FILE="pihole.env"
-
-BASE_DIR=$(get_docker_dir "tarpit")
+SERVICE_NAME="tarpit"
 ENV_FILE="grafana.env"
+
+print_header "Updating Grafana Environment"
+
+# Get service directory
+BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
+if [ $? -ne 0 ]; then
+    print_status "Failed to get $SERVICE_NAME directory" "error"
+    exit 1
+fi
 
 # Get Grafana credentials
 echo "Setting up Grafana (WebInterface for tarpit/honeypot)"

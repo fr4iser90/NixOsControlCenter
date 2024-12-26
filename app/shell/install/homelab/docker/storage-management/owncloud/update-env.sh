@@ -1,26 +1,55 @@
 #!/bin/bash
-source "${HOME}/docker-scripts/lib/config.sh"
-source "$(get_lib_file utils.sh)"
 
-# Get container directory
-BASE_DIR=$(get_docker_dir "owncloud")
+# Standard script setup
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Source core imports
+source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
+
+# Guard gegen mehrfaches Laden
+if [ -n "${_OWNCLOUD_ENV_LOADED+x}" ]; then
+    return 0
+fi
+_OWNCLOUD_ENV_LOADED=1
+
+# Script configuration
+SERVICE_NAME="owncloud"
 ENV_FILE="mysql.env"
 
-# Validate domain
-validate_domain || exit 1
+print_header "Updating OwnCloud Environment"
 
-# Generate MySQL root password
+# Get service directory
+BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
+if [ $? -ne 0 ]; then
+    print_status "Failed to get $SERVICE_NAME directory" "error"
+    exit 1
+fi
+
+# Validate domain
+print_status "Validating domain..." "info"
+if ! validate_domain; then
+    print_status "Domain validation failed" "error"
+    exit 1
+fi
+
+# Generate MySQL credentials
+print_status "Generating MySQL credentials..." "info"
 MYSQL_ROOT_PASSWORD=$(generate_random_string)
 
-# Debug output
-echo "Generated MySQL root password: $MYSQL_ROOT_PASSWORD"
-
-# Update environment file
+# Define environment variables
 new_values=(
     "MYSQL_ROOT_PASSWORD:$MYSQL_ROOT_PASSWORD"
     "APACHE_SERVER_NAME:$DOMAIN"
 )
 
-update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"
-
-echo "OwnCloud environment file has been updated."
+# Update environment file
+if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
+    print_status "OwnCloud environment updated successfully" "success"
+    if [ "$SHOW_CREDENTIALS" = true ]; then
+        print_status "MySQL Root Password: $MYSQL_ROOT_PASSWORD" "info"
+    fi
+else
+    print_status "Failed to update OwnCloud environment" "error"
+    exit 1
+fi
