@@ -69,7 +69,7 @@ initialize_services() {
         --pointer="▶" \
         --marker="✓" \
         --reverse \
-        --all)
+        --bind 'start:select-all')
 
     if [ -z "$selected" ]; then
         print_status "No services selected" "warn"
