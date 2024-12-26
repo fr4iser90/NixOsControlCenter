@@ -26,6 +26,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Set current service for credentials management
+export CURRENT_SERVICE="owncloud_mysql"
+
 # Validate domain
 print_status "Validating domain..." "info"
 if ! validate_domain; then
@@ -35,7 +38,14 @@ fi
 
 # Generate MySQL credentials
 print_status "Generating MySQL credentials..." "info"
-MYSQL_ROOT_PASSWORD=$(generate_random_string)
+MYSQL_ROOT_PASSWORD=$(generate_secure_password)
+if [ $? -ne 0 ]; then
+    print_status "Failed to generate MySQL password" "error"
+    exit 1
+fi
+
+# Store credentials
+store_service_credentials "$SERVICE_NAME" "mysql_root" "$MYSQL_ROOT_PASSWORD"
 
 # Define environment variables
 new_values=(

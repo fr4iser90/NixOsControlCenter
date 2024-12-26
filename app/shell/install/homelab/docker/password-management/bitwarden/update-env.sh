@@ -26,6 +26,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Set current service for credentials management
+export CURRENT_SERVICE="bitwarden"
+
 # Validate domain
 print_status "Validating domain..." "info"
 if ! validate_domain; then
@@ -35,9 +38,28 @@ fi
 
 # Get admin credentials
 print_status "Setting up admin credentials..." "info"
+
+# Username für Credentials-Speicherung
+username="admin"
+export CURRENT_USERNAME="$username"
+
+# Password eingabe und Hash
 admin_password=$(prompt_input "Bitwarden admin password" $INPUT_TYPE_PASSWORD)
+if [ $? -ne 0 ]; then
+    print_status "Failed to get admin password" "error"
+    exit 1
+fi
+
 ADMIN_TOKEN=$(hash_password "$admin_password")
+if [ $? -ne 0 ]; then
+    print_status "Failed to hash password" "error"
+    exit 1
+fi
+
 ADMIN_TOKEN_ESCAPED=$(escape_for_sed "$ADMIN_TOKEN")
+
+# Store credentials
+store_service_credentials "$SERVICE_NAME" "$username" "$admin_password"
 
 # Define environment variables
 new_values=(
@@ -49,7 +71,9 @@ new_values=(
 # Update environment file
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Bitwarden environment updated successfully" "success"
-    print_status "AdminToken: $ADMIN_TOKEN" "info"
+    if [ "$SHOW_CREDENTIALS" = true ]; then
+        print_status "AdminToken: $ADMIN_TOKEN" "info"
+    fi
 else
     print_status "Failed to update Bitwarden environment" "error"
     exit 1

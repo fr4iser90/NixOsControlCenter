@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Standard script setup
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
+
+# Source core imports
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Guard gegen mehrfaches Laden
@@ -23,9 +26,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Set current service for credentials management
+export CURRENT_SERVICE="pihole"
+
 # Generate web password
 print_status "Generating secure Pihole web password..." "info"
-WEBPASSWORD=$(generate_random_string)
+WEBPASSWORD=$(generate_secure_password)
+if [ $? -ne 0 ]; then
+    print_status "Failed to generate secure password" "error"
+    exit 1
+fi
+
+# Store credentials
+store_service_credentials "$SERVICE_NAME" "admin" "$WEBPASSWORD"
 
 # Define environment variables
 new_values=(

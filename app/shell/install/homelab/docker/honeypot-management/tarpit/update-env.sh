@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Standard script setup
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 
@@ -26,9 +27,24 @@ if [ $? -ne 0 ]; then
 fi
 
 # Get Grafana credentials
-echo "Setting up Grafana (WebInterface for tarpit/honeypot)"
-read -p "Enter Grafana username: " username
-password=$(prompt_password "Enter Grafana password")
+print_status "Setting up Grafana (WebInterface for tarpit/honeypot)" "info"
+
+# Setze CURRENT_SERVICE für Auto-Credentials
+export CURRENT_SERVICE="grafana"
+
+# Username eingabe
+username=$(prompt_input "Grafana username" $INPUT_TYPE_USERNAME)
+if [ $? -ne 0 ]; then
+    print_status "Failed to get username" "error"
+    exit 1
+fi
+
+# Passwort eingabe
+password=$(prompt_input "Grafana password" $INPUT_TYPE_PASSWORD)
+if [ $? -ne 0 ]; then
+    print_status "Failed to get password" "error"
+    exit 1
+fi
 
 # Update environment file
 new_values=(
@@ -36,6 +52,9 @@ new_values=(
     "GF_SECURITY_ADMIN_PASSWORD:$password"
 )
 
-update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"
-
-echo "Grafana environment file has been updated."
+if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
+    print_status "Grafana environment updated successfully" "success"
+else
+    print_status "Failed to update Grafana environment" "error"
+    exit 1
+fi
