@@ -39,8 +39,11 @@ prompt_input() {
 
     debug "prompt_input called with text='$prompt_text' type='$input_type'"
 
+    # Initialize CURRENT_USERNAME if not set
+    CURRENT_USERNAME=${CURRENT_USERNAME:-""}
+
     # Auto-Setup für USERNAME und PASSWORD
-    if [ "$AUTO_SETUP" -eq 1 ]; then
+    if [ "${AUTO_SETUP:-0}" -eq 1 ]; then
         case $input_type in
             $INPUT_TYPE_USERNAME)
                 value="auto_user_$(generate_random_string 8)"
@@ -72,6 +75,8 @@ prompt_input() {
                 read value < /dev/tty
                 debug "Got username='$value'"
                 if [ -n "$value" ]; then
+                    # Set CURRENT_USERNAME auch bei manuellem Input
+                    CURRENT_USERNAME="$value"
                     echo "$value"
                     return 0
                 fi

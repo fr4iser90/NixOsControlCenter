@@ -6,7 +6,7 @@
     curl
     wget
     git
-    vim
+    neovim
     htop
     tmux
     tree

@@ -39,6 +39,7 @@ with pkgs; [
   
   # Text Tools
   nano
+  nvim
   less
   
   # Hardware Detection
