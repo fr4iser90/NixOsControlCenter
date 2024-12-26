@@ -7,7 +7,6 @@
     gamemode
     lutris
     wine
-    winetricks
     # Communication
     vesktop
     noisetorch
