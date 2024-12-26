@@ -31,7 +31,7 @@ export CURRENT_SERVICE="cloudflare"
 
 # Check if Cloudflare credentials exist FIRST
 print_status "Checking Cloudflare credentials..." "info"
-if [ -z "${CF_API_EMAIL:-}" ] || [ -z "${CF_API_KEY:-}" ] || [ -z "${CF_ZONE_ID:-}" ]; then
+if [ -z "${CF_API_EMAIL:-}" ] || [ -z "${CF_TOKEN:-}" ] || [ -z "${CF_ZONE_ID:-}" ]; then
     print_status "No Cloudflare credentials found" "warn"
     print_status "Skipping Cloudflare configuration" "warn"
     exit 0
@@ -55,8 +55,8 @@ if [[ ! "$CF_API_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; 
 fi
 
 # API Key validation
-if [[ ${#CF_API_KEY} -lt 30 ]]; then
-    print_status "Cloudflare API key seems too short" "warn"
+if [[ ${#CF_TOKEN} -lt 30 ]]; then
+    print_status "Cloudflare API token seems too short" "warn"
     print_status "Skipping Cloudflare configuration" "warn"
     exit 0
 fi
@@ -71,12 +71,13 @@ fi
 print_status "Using existing Cloudflare credentials..." "info"
 
 # Store credentials
-store_service_credentials "$SERVICE_NAME" "$CF_API_EMAIL" "$CF_API_KEY"
+store_service_credentials "$SERVICE_NAME" "$CF_API_EMAIL" "$CF_TOKEN"
 
 # Update environment file
 new_values=(
     "CF_EMAIL:$CF_API_EMAIL"
-    "CF_API_KEY:$CF_API_KEY"
+    "#CF_API_KEY:$CF_API_KEY"
+    "CF_TOKEN:$CF_TOKEN"
     "DOMAIN1_ZONE_ID:$CF_ZONE_ID"
     "TARGET_DOMAIN:$DOMAIN"
     "DOMAIN1:$DOMAIN"
@@ -84,6 +85,12 @@ new_values=(
 
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Cloudflare configuration updated successfully" "success"
+    
+    # Optional: Check-Token ausführen
+    if [ -x "$BASE_DIR/check-token.sh" ]; then
+        print_status "Validating token configuration..." "info"
+        "$BASE_DIR/check-token.sh"
+    fi
 else
     print_status "Failed to update Cloudflare configuration" "error"
     exit 1
