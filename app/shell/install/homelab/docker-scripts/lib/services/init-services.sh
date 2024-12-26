@@ -77,6 +77,7 @@ initialize_services() {
     fi
 
     # Installiere ausgewählte Services
+    local failed_services=()
     while IFS= read -r selection; do
         local category="${selection%%:*}"
         local service="${selection#*:}"
@@ -89,27 +90,39 @@ initialize_services() {
         # Update Environment
         local service_dir="${DOCKER_BASE_DIR}/${category}/${service}"
         if [ -f "${service_dir}/update-env.sh" ]; then
-            bash "${service_dir}/update-env.sh" || {
-                print_status "Failed to update environment for $service" "error"
-                return 1
-            }
+            if ! bash "${service_dir}/update-env.sh"; then
+                print_status "Failed to update environment for $service - skipping" "warn"
+                failed_services+=("$service")
+                continue
+            fi
         fi
 
         # Starte Container
-        start_docker_container "$service" || {
-            print_status "Failed to start $service" "error"
-            return 1
-        }
+        if ! start_docker_container "$service"; then
+            print_status "Failed to start $service - skipping" "warn"
+            failed_services+=("$service")
+            continue
+        fi
 
         print_status "$service initialized successfully" "success"
     done <<< "$selected"
+
+    # Zeige Zusammenfassung
+    if [ ${#failed_services[@]} -gt 0 ]; then
+        print_status "Some services failed to initialize:" "warn"
+        for service in "${failed_services[@]}"; do
+            print_status "- $service" "warn"
+        done
+        print_status "You can try to initialize these services later with: homelab-service install <service>" "info"
+    else
+        print_status "All selected services have been initialized" "success"
+    fi
 
     # Finalisiere Credentials wenn Auto-Setup aktiv war
     if [ "$AUTO_SETUP" -eq 1 ]; then
         finalize_credentials_file
     fi
 
-    print_status "All selected services have been initialized" "success"
     return 0
 }
 

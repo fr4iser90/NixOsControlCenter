@@ -1,12 +1,17 @@
 #!/bin/bash
 
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
-
-# Source core imports
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
-# Get container directory
+# Guard gegen mehrfaches Laden
+if [ -n "${_PIHOLE_ENV_LOADED+x}" ]; then
+    return 0
+fi
+_PIHOLE_ENV_LOADED=1
+
+# Script configuration
+SERVICE_NAME="pihole"
+ENV_FILE="pihole.env"
+
 BASE_DIR=$(get_docker_dir "tarpit")
 ENV_FILE="grafana.env"
 
