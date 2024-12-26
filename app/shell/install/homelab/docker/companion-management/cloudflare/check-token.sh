@@ -11,11 +11,34 @@ BASE_DIR=$(get_docker_dir "$SERVICE_NAME")
 
 check_auth() {
     print_status "Checking Cloudflare authentication..." "info"
-    sleep 10  # Warte bis Container gestartet ist
     
-    if docker logs cloudflare-companion 2>&1 | grep -i "authentication failed\|unauthorized\|invalid token"; then
+    # Debug: Zeige ENV-Datei Inhalt (ohne sensitive Daten)
+    print_status "Current ENV file configuration:" "info"
+    grep -v "KEY\|TOKEN" "$BASE_DIR/$ENV_FILE" || true
+    
+    # Prüfe ob Container läuft
+    if ! docker ps | grep -q "cloudflare-companion"; then
+        print_status "Container is not running, starting it..." "warn"
+        cd "$BASE_DIR" && docker-compose up -d
+        sleep 10
+    fi
+    
+    # Zeige die letzten Logs
+    print_status "Checking container logs..." "info"
+    docker logs --tail 50 cloudflare-companion
+    
+    # Erweiterte Fehlersuche
+    if docker logs cloudflare-companion 2>&1 | grep -i "authentication\|unauthorized\|invalid\|error\|CloudFlareAPIError"; then
+        print_status "Found authentication error in logs" "error"
         return 1
     fi
+    
+    # Prüfe ob Container noch läuft oder crasht
+    if ! docker ps | grep -q "cloudflare-companion"; then
+        print_status "Container crashed after start" "error"
+        return 1
+    fi
+    
     return 0
 }
 
