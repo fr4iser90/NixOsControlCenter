@@ -86,16 +86,30 @@ new_values=(
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Cloudflare configuration updated successfully" "success"
     
-    # Setze Ausführungsrechte für check-token.sh
-    if [ -f "$BASE_DIR/check-token.sh" ]; then
-        chmod +x "$BASE_DIR/check-token.sh"
+    # Definiere den absoluten Pfad zum Script
+    CHECK_SCRIPT="${BASE_DIR}/check-token.sh"
+    
+    print_status "Looking for check script at: $CHECK_SCRIPT" "info"
+    
+    # Prüfe ob die Datei existiert und ausführbar ist
+    if [ -f "$CHECK_SCRIPT" ]; then
+        # Setze Ausführungsrechte
+        chmod +x "$CHECK_SCRIPT"
         print_status "Set execute permissions for check-token.sh" "info"
         
-        # Führe Check-Token aus
+        # Starte Container falls nötig
+        if ! docker ps | grep -q "cloudflare-companion"; then
+            print_status "Starting Cloudflare companion container..." "info"
+            cd "$BASE_DIR" && docker-compose up -d
+            sleep 5
+        fi
+        
+        # Führe Check mit bash explizit aus
         print_status "Validating token configuration..." "info"
-        "$BASE_DIR/check-token.sh"
+        bash "$CHECK_SCRIPT"
     else
-        print_status "check-token.sh not found" "warn"
+        print_status "check-token.sh not found at: $CHECK_SCRIPT" "warn"
+        ls -la "$BASE_DIR"  # Debug: Zeige Verzeichnisinhalt
     fi
 else
     print_status "Failed to update Cloudflare configuration" "error"
