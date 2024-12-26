@@ -76,3 +76,11 @@ secure_retrieve() {
         return 1
     fi
 }
+
+# Füge diese Funktion hinzu:
+generate_secure_password() {
+    local length=16
+    local chars='!@#$%^&*()_+-=[]{}|;:,.<>?'
+    local password=$(nix-shell -p openssl --run "openssl rand -base64 32 | tr -dc 'a-zA-Z0-9${chars}' | head -c ${length}")
+    echo "$password"
+}

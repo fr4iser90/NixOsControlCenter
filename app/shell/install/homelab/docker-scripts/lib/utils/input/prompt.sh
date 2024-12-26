@@ -4,6 +4,8 @@ export TEST_MODE=1
 # Zuerst die benötigten Funktionen laden
 source "${DOCKER_LIB_DIR}/utils/format/output.sh"
 source "${DOCKER_LIB_DIR}/utils/security/credentials-manager.sh"
+source "${DOCKER_LIB_DIR}/utils/system/string.sh"     
+source "${DOCKER_LIB_DIR}/utils/security/crypto.sh"
 
 # Guard against multiple inclusion
 if [ -z "${_PROMPT_SH+x}" ]; then

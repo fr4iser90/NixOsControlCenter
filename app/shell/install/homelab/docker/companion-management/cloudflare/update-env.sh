@@ -26,6 +26,17 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Set current service for logging
+export CURRENT_SERVICE="cloudflare"
+
+# Check if Cloudflare credentials exist FIRST
+print_status "Checking Cloudflare credentials..." "info"
+if [ -z "${CF_API_EMAIL:-}" ] || [ -z "${CF_API_KEY:-}" ] || [ -z "${CF_ZONE_ID:-}" ]; then
+    print_status "No Cloudflare credentials found" "warn"
+    print_status "Skipping Cloudflare configuration" "warn"
+    exit 0
+fi
+
 # Validate domain
 print_status "Validating domain..." "info"
 if ! validate_domain; then
@@ -33,7 +44,7 @@ if ! validate_domain; then
     exit 1
 fi
 
-# Validate Cloudflare credentials
+# Now validate the credentials that we know exist
 print_status "Validating Cloudflare credentials..." "info"
 
 # Email validation
@@ -43,14 +54,14 @@ if [[ ! "$CF_API_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; 
     exit 0
 fi
 
-# API Key validation (basic length check)
+# API Key validation
 if [[ ${#CF_API_KEY} -lt 30 ]]; then
     print_status "Cloudflare API key seems too short" "warn"
     print_status "Skipping Cloudflare configuration" "warn"
     exit 0
 fi
 
-# Zone ID validation (basic format check)
+# Zone ID validation
 if [[ ! "$CF_ZONE_ID" =~ ^[a-f0-9]{32}$ ]]; then
     print_status "Invalid Cloudflare Zone ID format" "warn"
     print_status "Skipping Cloudflare configuration" "warn"
@@ -58,6 +69,9 @@ if [[ ! "$CF_ZONE_ID" =~ ^[a-f0-9]{32}$ ]]; then
 fi
 
 print_status "Using existing Cloudflare credentials..." "info"
+
+# Store credentials
+store_service_credentials "$SERVICE_NAME" "$CF_API_EMAIL" "$CF_API_KEY"
 
 # Update environment file
 new_values=(

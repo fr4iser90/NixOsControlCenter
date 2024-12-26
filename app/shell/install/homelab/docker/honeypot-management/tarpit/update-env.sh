@@ -8,10 +8,10 @@ DOCKER_SCRIPTS_DIR="/home/docker/docker-scripts"
 source "${DOCKER_SCRIPTS_DIR}/lib/core/imports.sh"
 
 # Guard gegen mehrfaches Laden
-if [ -n "${_PIHOLE_ENV_LOADED+x}" ]; then
+if [ -n "${_GRAFANA_ENV_LOADED+x}" ]; then
     return 0
 fi
-_PIHOLE_ENV_LOADED=1
+_GRAFANA_ENV_LOADED=1
 
 # Script configuration
 SERVICE_NAME="tarpit"
@@ -26,21 +26,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Get Grafana credentials
-print_status "Setting up Grafana (WebInterface for tarpit/honeypot)" "info"
-
-# Setze CURRENT_SERVICE für Auto-Credentials
+# Set current service for credentials management
 export CURRENT_SERVICE="grafana"
 
-# Username eingabe
-username=$(prompt_input "Grafana username" $INPUT_TYPE_USERNAME)
+print_status "Setting up Grafana (WebInterface for tarpit/honeypot)" "info"
+
+# Get credentials using prompt system
+username=$(prompt_input "Enter Grafana username" $INPUT_TYPE_USERNAME)
 if [ $? -ne 0 ]; then
     print_status "Failed to get username" "error"
     exit 1
 fi
 
-# Passwort eingabe
-password=$(prompt_input "Grafana password" $INPUT_TYPE_PASSWORD)
+password=$(prompt_input "Enter Grafana password" $INPUT_TYPE_PASSWORD)
 if [ $? -ne 0 ]; then
     print_status "Failed to get password" "error"
     exit 1
@@ -54,6 +52,9 @@ new_values=(
 
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Grafana environment updated successfully" "success"
+    if [ "$SHOW_CREDENTIALS" = true ]; then
+        print_status "Username: $username" "info"
+    fi
 else
     print_status "Failed to update Grafana environment" "error"
     exit 1
