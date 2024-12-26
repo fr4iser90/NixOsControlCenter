@@ -86,10 +86,16 @@ new_values=(
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Cloudflare configuration updated successfully" "success"
     
-    # Optional: Check-Token ausführen
-    if [ -x "$BASE_DIR/check-token.sh" ]; then
+    # Setze Ausführungsrechte für check-token.sh
+    if [ -f "$BASE_DIR/check-token.sh" ]; then
+        chmod +x "$BASE_DIR/check-token.sh"
+        print_status "Set execute permissions for check-token.sh" "info"
+        
+        # Führe Check-Token aus
         print_status "Validating token configuration..." "info"
         "$BASE_DIR/check-token.sh"
+    else
+        print_status "check-token.sh not found" "warn"
     fi
 else
     print_status "Failed to update Cloudflare configuration" "error"
