@@ -1,6 +1,7 @@
 # Features
 
 ## Core System 
+
 - [x] Hardware Detection
   - [x] GPU Support
     - [x] AMD
@@ -14,12 +15,14 @@
     - [ ] RAM Monitoring
 
 ## Boot Management 
+
 - [x] systemd-boot Support
   - [x] Entry Management
 - [ ] GRUB Support (Planned)
 - [ ] Secure Boot (Future)
 
 ## NixOSControlCenter Interface 
+
 - [ ] GUI Development
   - [ ] Main Dashboard
   - [ ] System Overview
@@ -31,6 +34,7 @@
   - [ ] Custom Themes
 
 ## System Management 🔄
+
 - [x] Flake Updates
   - [x] Auto-Backup before Update
   - [x] Error Detection
@@ -41,6 +45,7 @@
   - [x] Hardware Compatibility
 
 ## Virtualization 🖥️
+
 - [x] Basic Container Support
   - [x] Docker Integration
   - [ ] Podman Support
@@ -52,6 +57,7 @@
   - [ ] Network Configuration
 
 ## Remote Management 🌐
+
 - [x] SSH Configuration
   - [x] Key Management
   - [ ] Port Configuration
@@ -64,6 +70,7 @@
   - [ ] Fail2Ban Integration
 
 ## Package Management 
+
 - [ ] Package Operations
   - [ ] Search
   - [ ] Install
@@ -74,7 +81,8 @@
   - [ ] Lock File Handling
   - [ ] Version Control
 
-## User Management 
+## User Management
+
 - [x] User Management
   - [x] Role Assignment
   - [x] Password Management
@@ -82,6 +90,7 @@
 - [x] Permission Control
 
 ## Development Tools 
+
 - [ ] IDE Integration
 - [ ] Debug Tools
 - [ ] Testing Framework
@@ -90,12 +99,14 @@
   - [ ] System Tests
 
 ## Documentation 
+
 - [ ] Installation Guide
 - [ ] User Manual
 - [ ] API Documentation
 - [ ] Module Documentation
 
 ## Future Plans 
+
 - [ ] Docker / NixContainer Integration 
 - [ ] Cloud Backup
 - [ ] Remote Management

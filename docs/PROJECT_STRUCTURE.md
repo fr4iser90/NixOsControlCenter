@@ -1,6 +1,7 @@
-
+# Project Structure
 
 ```tree
+
 NixOsControlCenter/
 ├── app/
 │ ├── modules/ # App-specific modules

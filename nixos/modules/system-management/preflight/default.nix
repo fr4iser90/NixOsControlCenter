@@ -35,8 +35,8 @@ let
       else ""}
       echo '${builtins.toJSON {
         systemType = systemConfig.systemType or null;
-        gpu = systemConfig.gpu or null;
-        cpu = systemConfig.cpu or null;
+        gpu = systemConfig.hardware.gpu or null;
+        cpu = systemConfig.hardware.cpu or null;
         users = systemConfig.users or {};
       }}' > /etc/nixos/.system-config.previous.json
     }

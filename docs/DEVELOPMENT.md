@@ -18,4 +18,4 @@ show-help
 
 ## Testing
 
-Little flake checking implemented not very good 
+Little flake checking implemented not very good

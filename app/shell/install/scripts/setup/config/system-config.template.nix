@@ -44,9 +44,12 @@
   #
   # Hardware Configuration
   #
-  cpu = "@CPU@";
-  gpu = "@GPU@";
-  audio = "@AUDIO@";
+  hardware = {
+    cpu = "@CPU@";
+    gpu = "@GPU@";
+    audio = "@AUDIO@";
+    # Weitere Hardware-Konfigurationen
+  };
 
   #
   # Nix Configuration

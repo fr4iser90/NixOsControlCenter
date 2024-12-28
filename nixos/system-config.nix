@@ -53,9 +53,12 @@
   #
   # Hardware Configuration
   #
-  cpu = "intel";
-  gpu = "amd";
-  audio = "pipewire";
+  hardware = {
+    cpu = "intel";
+    gpu = "amd";
+    audio = "pipewire";
+    # Weitere Hardware-Konfigurationen
+  };
 
   #
   # Nix Configuration

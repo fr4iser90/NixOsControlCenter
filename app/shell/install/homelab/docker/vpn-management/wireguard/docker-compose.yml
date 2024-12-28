@@ -8,8 +8,8 @@ services:
       - SYS_MODULE
     env_file: wireguard.env
     volumes:
-      - /home/docker/wireguard/config:/config
-      - /lib/modules:/lib/modules
+      - ./config:/config
+      - ./lib/modules:/lib/modules
     ports:
       - 51820:51820/udp
     dns:

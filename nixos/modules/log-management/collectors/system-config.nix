@@ -15,10 +15,10 @@ let
   # Collect all changes
   changes = concatStringsSep "\n" (filter (x: x != null) [
     (optionalString (hasChanged "gpu") 
-      (formatting.keyValue "GPU" "${prevConfig.gpu} → ${systemConfig.gpu}"))
+      (formatting.keyValue "GPU" "${prevConfig.gpu} → ${systemConfig.hardware.gpu}"))
     
     (optionalString (hasChanged "cpu")
-      (formatting.keyValue "CPU" "${prevConfig.cpu} → ${systemConfig.cpu}"))
+      (formatting.keyValue "CPU" "${prevConfig.cpu} → ${systemConfig.hardware.cpu}"))
     
     (optionalString (hasChanged "users")
       (formatting.keyValue "Users" "${toString (attrNames prevConfig.users)} → ${toString (attrNames systemConfig.users)}"))

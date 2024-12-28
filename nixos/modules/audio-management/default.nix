@@ -3,20 +3,20 @@
 
 {
   imports = [
-    (./. + "/${systemConfig.audio}.nix")
+    (./. + "/${systemConfig.hardware.audio}.nix")
   ];
 
   # Optional: Validierung
   assertions = [
     {
-      assertion = builtins.elem systemConfig.audio ["pipewire" "pulseaudio" "alsa" "none"];
-      message = "Invalid audio system: ${systemConfig.audio}";
+      assertion = builtins.elem systemConfig.hardware.audio ["pipewire" "pulseaudio" "alsa" "none"];
+      message = "Invalid audio system: ${systemConfig.hardware.audio}";
     }
   ];
   
   # Optional: Basis-Audio-Pakete
-  environment.systemPackages = lib.mkIf (systemConfig.audio != "none") (with pkgs; [
-#    pavucontrol
-#    pamixer
+  environment.systemPackages = lib.mkIf (systemConfig.hardware.audio != "none") (with pkgs; [
+    pavucontrol
+    pamixer
   ]);
 }
