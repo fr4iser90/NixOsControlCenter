@@ -2,12 +2,12 @@
 { config, lib, pkgs, systemConfig, ... }:
 let
   # Import des spezifischen Theme Moduls
-  themeModule = ./schemes + "/${systemConfig.desktop}.nix";
+  themeModule = ./schemes + "/${systemConfig.desktop.environment}.nix";
 in {
-  imports = [ themeModule ];
+  imports = lib.mkIf systemConfig.desktop.enable [ themeModule ];
 
-  assertions = [{
+  assertions = lib.mkIf systemConfig.desktop.enable [{
     assertion = builtins.pathExists themeModule;
-    message = "Color scheme for desktop environment ${systemConfig.desktop} not found";
+    message = "Color scheme for desktop environment ${systemConfig.desktop.environment} not found";
   }];
 }

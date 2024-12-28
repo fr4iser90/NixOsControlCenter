@@ -5,13 +5,13 @@ let
   cpuConfigs = {
     # Intel Prozessoren
     "intel" = ./intel.nix;
-    "intel-core" = ./intel-core.nix;
-    "intel-xeon" = ./intel-xeon.nix;
+    "intel-core" = ./intel.nix;
+    "intel-xeon" = ./intel.nix;
     
     # AMD Prozessoren  
     "amd" = ./amd.nix;
-    "amd-ryzen" = ./amd-ryzen.nix;
-    "amd-epyc" = ./amd-epyc.nix;
+    "amd-ryzen" = ./amd.nix;
+    "amd-epyc" = ./amd.nix;
     
     # Spezielle Konfigurationen
     "vm-cpu" = ./vm-cpu.nix;     # Für virtuelle Maschinen

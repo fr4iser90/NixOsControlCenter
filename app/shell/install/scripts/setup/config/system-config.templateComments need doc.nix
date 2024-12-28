@@ -34,12 +34,18 @@
   #
   # Desktop Environment
   #
-  enableDesktop     = @ENABLE_DESKTOP@;
-  desktop           = "@DESKTOP@";           # [plasma/gnome/xfce]
-  displayManager    = "@DISPLAY_MGR@";       # [sddm/gdm/lightdm]
-  displayServer     = "@DISPLAY_SERVER@";    # [wayland/x11/hybrid]
-  session           = "@SESSION@";           # [plasma/gnome]
-  darkMode          = @DARK_MODE@;          # [true/false]
+  desktop = {
+    enable = @ENABLE_DESKTOP@;
+    environment = "@DESKTOP@";        # [plasma/gnome/xfce]
+    display = {
+      manager = "@DISPLAY_MGR@";      # [sddm/gdm/lightdm]
+      server = "@DISPLAY_SERVER@";    # [wayland/x11/hybrid]
+      session = "@SESSION@";          # [plasma/gnome]
+    };
+    theme = {
+      dark = @DARK_MODE@;             # [true/false]
+    };
+  };
 
   #
   # Hardware Configuration

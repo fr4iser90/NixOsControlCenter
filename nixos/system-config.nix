@@ -43,12 +43,18 @@
   #
   # Desktop Environment
   #
-  enableDesktop = true;
-  desktop = "plasma";
-  displayManager = "sddm";
-  displayServer = "wayland";
-  session = "plasma";
-  darkMode = true;
+  desktop = {
+    enable = true;
+    environment = "plasma";
+    display = {
+      manager = "sddm";
+      server = "wayland";
+      session = "plasma";
+    };
+    theme = {
+      dark = true;
+    };
+  };
 
   #
   # Hardware Configuration

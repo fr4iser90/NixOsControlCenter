@@ -2,25 +2,30 @@
 { config, lib, pkgs, systemConfig, ... }:
 
 let
-  # Auto-Login Benutzer finden
+  # Find user with autoLogin enabled
+  # Returns null if no user has autoLogin set to true
   autoLoginUser = lib.findFirst 
     (user: systemConfig.users.${user}.autoLogin or false) 
     null 
     (builtins.attrNames systemConfig.users);
 in {
-  imports = [
-    (./. + "/${systemConfig.displayManager}")  # Lädt automatisch den richtigen Display Manager
+  # Import selected display manager configuration
+  # Path is determined by systemConfig.desktop.display.manager
+  imports = [ 
+    (./. + "/${systemConfig.desktop.display.manager}") 
   ];
 
-  # Nur Auto-Login Konfiguration
-  services.displayManager.autoLogin = {
+  # Configure auto-login if a user has it enabled
+  # Only active when an autoLogin user is found
+  services.displayManager.autoLogin = lib.mkIf systemConfig.desktop.enable {
     enable = autoLoginUser != null;
     user = autoLoginUser;
   };
-  assertions = [
-    {
-      assertion = builtins.pathExists (./. + "/${systemConfig.displayManager}");
-      message = "Invalid display manager: ${systemConfig.displayManager}";
-    }
-  ];
+
+  # Verify display manager exists
+  # Prevents configuration errors before build
+  assertions = lib.mkIf systemConfig.desktop.enable [{
+    assertion = builtins.pathExists (./. + "/${systemConfig.desktop.display.manager}");
+    message = "Invalid display manager: ${systemConfig.desktop.display.manager}";
+  }];
 }

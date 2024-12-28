@@ -1,6 +1,6 @@
 { config, lib, pkgs, systemConfig, ... }:
 {
-  imports = if systemConfig.enableDesktop then [ 
+  imports = if systemConfig.desktop.enable then [ 
     ./display-managers
     ./display-servers
     ./environments
@@ -10,7 +10,7 @@
   # Globale Tastaturkonfiguration für alle Display-Server
   console.keyMap = systemConfig.keyboardLayout;
   
-  environment = {
+  environment = lib.mkIf systemConfig.desktop.enable {
     variables = {
       XKB_DEFAULT_LAYOUT = systemConfig.keyboardLayout;
       XKB_DEFAULT_OPTIONS = systemConfig.keyboardOptions;
@@ -21,32 +21,30 @@
     };
   };
 
-  services.xserver = {
+  services.xserver = lib.mkIf systemConfig.desktop.enable {
     xkb = {
       layout = systemConfig.keyboardLayout;
       options = systemConfig.keyboardOptions;
     };
   };
 
-  # DBus-Fix (könnte auch in display-servers/common.nix verschoben werden)
-  services.dbus = {
+  services.dbus = lib.mkIf systemConfig.desktop.enable {
     enable = true;
-    implementation = "broker";
+    implementation = "broker";  # dbus | broker
   };
 
-
-  assertions = [
+  assertions = lib.mkIf systemConfig.desktop.enable [
     {
-      assertion = builtins.elem systemConfig.displayServer ["x11" "wayland" "hybrid"];
-      message = "Invalid display server selection: ${systemConfig.displayServer}";
+      assertion = builtins.elem systemConfig.desktop.display.server ["x11" "wayland" "hybrid"];
+      message = "Invalid display server selection: ${systemConfig.desktop.display.server}";
     }
     {
-      assertion = builtins.elem systemConfig.desktop ["plasma" "gnome" "xfce"];
-      message = "Invalid desktop environment: ${systemConfig.desktop}";
+      assertion = builtins.elem systemConfig.desktop.environment ["plasma" "gnome" "xfce"];
+      message = "Invalid desktop environment: ${systemConfig.desktop.environment}";
     }
     {
-      assertion = builtins.elem systemConfig.displayManager ["sddm" "gdm" "lightdm"];
-      message = "Invalid display manager: ${systemConfig.displayManager}";
+      assertion = builtins.elem systemConfig.desktop.display.manager ["sddm" "gdm" "lightdm"];
+      message = "Invalid display manager: ${systemConfig.desktop.display.manager}";
     }
   ];
 }

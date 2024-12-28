@@ -22,7 +22,7 @@
   };
 
   #
-  # Desktop Environment (Optional, nur wenn system.type == "desktop")
+  # Desktop Environment
   #
   desktop = {
     enable = true;
@@ -34,7 +34,6 @@
     };
     theme = {
       dark = true;
-      # Weitere Theme-Optionen
     };
   };
 
