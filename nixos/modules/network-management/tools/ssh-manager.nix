@@ -55,32 +55,43 @@ let
     connect_server() {
         local servers_list; servers_list=$(load_saved_servers)
 
-        echo "DEBUG: Servers list loaded - $servers_list"
+        echo "🔍 Loading saved servers..."
 
         local choice; choice=$(select_server "$servers_list")
-
-        echo "DEBUG: Choice selected - $choice"
 
         local server
         local username
 
         if [[ "$choice" == "Add new server" ]]; then
+            echo "➕ Adding a new server connection"
             server=$(get_user_input "Enter the new server IP: ")
-            echo "DEBUG: New server IP - $server"
             username=$(get_user_input "Enter the username for the new server: ")
-            echo "DEBUG: New server username - $username"
             if [[ $(get_user_input "Do you want to save this server? (yes/no): ") == "yes" ]]; then
                 save_new_server "$server" "$username"
+                echo "✅ Server saved successfully!"
             fi
         else
             server="''${choice%% (*)}"
             username="''${choice##*(}"
             username="''${username%)*}"
+            echo "🔄 Connecting to $server as $username..."
         fi
 
-        echo "DEBUG: Server - $server, Username - $username"
+        if [[ ! -f "$HOME/.ssh/id_rsa.pub" ]]; then
+            echo "🔑 No SSH key found. Generating a new one..."
+            ${pkgs.openssh}/bin/ssh-keygen -t rsa -b 4096 -f "$HOME/.ssh/id_rsa" -N ""
+            echo "✅ SSH key generated successfully!"
+        fi
 
-        add_ssh_key "$username" "$server"
+        echo "🔑 Checking SSH key installation..."
+        if ${pkgs.openssh}/bin/ssh-copy-id -n "$username@$server" &>/dev/null; then
+            echo "ℹ️  SSH key already installed on the server"
+        else
+            echo "📤 Installing SSH key on the server..."
+            ${pkgs.openssh}/bin/ssh-copy-id "$username@$server"
+        fi
+
+        echo "🚀 Establishing connection..."
         connect_to_server "$username@$server"
     }
 
