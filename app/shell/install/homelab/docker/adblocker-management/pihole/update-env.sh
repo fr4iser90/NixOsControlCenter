@@ -26,6 +26,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Get user info
+print_status "Getting user information..." "info"
+if ! get_user_info; then
+    print_status "Failed to get user information" "error"
+    exit 1
+fi
+
 # Set current service for credentials management
 export CURRENT_SERVICE="pihole"
 
@@ -43,11 +50,17 @@ store_service_credentials "$SERVICE_NAME" "admin" "$WEBPASSWORD"
 # Define environment variables
 new_values=(
     "WEBPASSWORD:$WEBPASSWORD"
+    "PUID:$USER_UID"
+    "PGID:$USER_GID"
 )
 
 # Update environment file
 if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "Environment file has been updated" "success"
+    if [ "$SHOW_CREDENTIALS" = true ]; then
+        print_status "PUID: $USER_UID" "info"
+        print_status "PGID: $USER_GID" "info"
+    fi
 else
     print_status "Failed to update environment file" "error"
     exit 1

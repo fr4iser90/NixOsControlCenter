@@ -26,6 +26,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Get user info
+print_status "Getting user information..." "info"
+if ! get_user_info; then
+    print_status "Failed to get user information" "error"
+    exit 1
+fi
+
 # Set current service for credentials management
 export CURRENT_SERVICE="wireguard"
 
@@ -54,6 +61,10 @@ store_service_credentials "$SERVICE_NAME" "$username" "$password"
 new_values=(
     "WGUI_USERNAME:$username"
     "WGUI_PASSWORD:$password"
+    "WGUI_MANAGE_START:true"
+    "WGUI_MANAGE_RESTART:true"
+    "PUID:$USER_UID"
+    "PGID:$USER_GID"
 )
 
 # Update environment file
@@ -61,6 +72,8 @@ if update_env_file "$BASE_DIR" "$ENV_FILE" "${new_values[@]}"; then
     print_status "WireGuard environment updated successfully" "success"
     if [ "$SHOW_CREDENTIALS" = true ]; then
         print_status "Username: $username" "info"
+        print_status "PUID: $USER_UID" "info"
+        print_status "PGID: $USER_GID" "info"
     fi
 else
     print_status "Failed to update WireGuard environment" "error"

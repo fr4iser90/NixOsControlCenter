@@ -11,6 +11,7 @@ services:
       - './etc-pihole/:/etc/pihole/'
       - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
     dns:
+      - 127.0.0.1
       - 1.1.1.1
     ports:
       - "53:53/tcp"        # DNS nur lokal erreichbar
