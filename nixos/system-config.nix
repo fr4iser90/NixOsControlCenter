@@ -73,7 +73,7 @@
   buildLogLevel = "minimal";
 
   #
-  # System Features
+  # Custom Features
   #
   entryManagement = true;
   preflightChecks = true;

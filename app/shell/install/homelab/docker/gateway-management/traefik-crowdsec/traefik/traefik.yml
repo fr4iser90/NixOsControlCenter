@@ -1,10 +1,15 @@
+# API and Dashboard Configuration
+# To enable dashboard access, set dashboard: true
 api:
-  dashboard: true
+  dashboard: false    # Dashboard disabled by default for security
+  insecure: false    # Keep false to ensure secure access
 
+# Metrics Configuration
 metrics:
   prometheus:
     addrouterslabels: true
 
+# SSL Certificate Configuration
 certificatesResolvers:
   http_resolver:
     acme:
@@ -17,6 +22,8 @@ certificatesResolvers:
       tlsChallenge: true
       email: "${CERTEMAIL}"
       storage: "tls_letsencrypt.json"
+
+# Entry Points Configuration
 entryPoints:
   ping:
     address: ":88"
@@ -25,7 +32,7 @@ entryPoints:
     http:
       redirections:
         entryPoint:
-          to: "websecure"
+          to: "websecure"    # Redirect all HTTP to HTTPS
           scheme: "https"
       middlewares:
         - traefik-crowdsec-bouncer@file
@@ -34,43 +41,51 @@ entryPoints:
     http:
       middlewares:
         - traefik-crowdsec-bouncer@file
+    # Trust IPs for proxy protocol
     proxyProtocol:
       trustedIPs:
-       - 10.0.0.0/8
-       - 172.16.0.0/12
-       - 192.168.0.0/16
+       - 10.0.0.0/8      # Private network
+       - 172.16.0.0/12   # Docker network
+       - 192.168.0.0/16  # Local network
     forwardedHeaders:
       trustedIPs:
        - 10.0.0.0/8
        - 172.16.0.0/12
        - 192.168.0.0/16
 
+# Health Check Configuration
 ping:
   entryPoint: "ping"
 
+# Global Settings
 global:
   checknewversion: true
   sendanonymoususage: false
 
+# Experimental Features
 experimental:
   plugins:
     real-ip:
       moduleName: github.com/Paxxs/traefik-get-real-ip
       version: "v1.0.2"
 
+# Provider Configuration
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: false
+    exposedByDefault: false    # Safer default: services must opt-in
     network: "proxy"
   file:
-    filename: "./dynamic_conf.yml"
+    directory: "/dynamic-conf/"
     watch: true
   providersThrottleDuration: 10
 
+# Logging Configuration
 log:
-  level: "DEBUG"
+  level: "DEBUG"    # Set to INFO in production
   filePath: "/var/log/traefik/traefik.log"
+
+# Access Log Configuration
 accessLog:
   filePath: "/var/log/traefik/access.log"
   bufferingSize: 100
@@ -79,6 +94,7 @@ accessLog:
     defaultMode: keep
     headers:
       defaultMode: keep
+    # Keep important request information for logging
     names:
       "RequestHost": "keep"
       "RequestAddr": "keep"
@@ -92,4 +108,4 @@ accessLog:
       "RouterName": "keep"
   filters:
     statusCodes:
-      - "200-499"
+      - "200-499"    # Log only successful requests

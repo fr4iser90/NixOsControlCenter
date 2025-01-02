@@ -35,6 +35,8 @@ services:
         condition: service_healthy
     env_file: traefik.env
     hostname: traefik
+    command:
+      - "--log.level=DEBUG"
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -47,21 +49,49 @@ services:
       start_period: 10s
     image: traefik:v3.1.0
     labels:
+      # Basis-Konfiguration
       - "traefik.docker.network=proxy"
       - "traefik.enable=true"
+
+      # Router Konfiguration
       - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.middlewares=default@file,traefikAuth@file,traefik-whitelist@docker"
+      - "traefik.http.routers.traefik.middlewares=default@file,traefikAuth@file,admin-whitelist@file"
       - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=http_resolver"
+      
+      # Service Konfiguration
       - "traefik.http.services.traefik.loadbalancer.sticky.cookie.httpOnly=true"
       - "traefik.http.services.traefik.loadbalancer.sticky.cookie.secure=true"
+      
+      # Ping Router 
       - "traefik.http.routers.pingweb.rule=PathPrefix(`/ping`)"
       - "traefik.http.routers.pingweb.service=ping@internal"
       - "traefik.http.routers.pingweb.entrypoints=websecure"
-      - "traefik.http.middlewares.traefik-whitelist.ipwhitelist.sourcerange=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12"
 
+      # Middleware Definitionen (verfügbar für andere Services)
+      # Security Headers
+      - "traefik.http.middlewares.security-headers.headers.sslRedirect=true"
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.security-headers.headers.customFrameOptionsValue=SAMEORIGIN"
+      
+      # Zusätzliche Security Headers
+      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.security-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.security-headers.headers.referrerPolicy=same-origin"
+      - "traefik.http.middlewares.security-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=()"
+      - "traefik.http.middlewares.security-headers.headers.contentSecurityPolicy=default-src 'self'; frame-ancestors 'none'"
+      - "traefik.http.middlewares.security-headers.headers.customResponseHeaders.X-Robots-Tag=noindex,nofollow"
+      
+      # Rate Limiting
+      - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
+      - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
+      - "traefik.http.middlewares.rate-limit.ratelimit.period=1m"
+      
     networks:
       crowdsec:
         ipv4_address: 172.41.254.253
@@ -70,6 +100,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "127.0.0.1:8080:8080"  # Erreichbar über alle Server-IPs
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -80,7 +111,8 @@ services:
       - ./traefik/traefik.yml:/traefik.yml:ro
       - ./traefik/acme_letsencrypt.json:/acme_letsencrypt.json
       - ./traefik/tls_letsencrypt.json:/tls_letsencrypt.json
-      - ./traefik/dynamic_conf.yml:/dynamic_conf.yml
+#      - ./traefik/dynamic_conf.yml:/dynamic_conf.yml
+      - ./traefik/dynamic-conf:/dynamic-conf:ro
 
   traefik_crowdsec_bouncer:
     container_name: traefik_crowdsec_bouncer
@@ -97,6 +129,22 @@ services:
       crowdsec:
         ipv4_address: 172.41.254.252
     restart: unless-stopped
+
+  ip-updater:
+    image: alpine:latest
+    container_name: ip-updater
+    restart: unless-stopped
+    volumes:
+      - ./traefik/dynamic-conf:/dynamic-conf:rw
+    command: |
+      sh -c 'while true; do
+        apk add --no-cache curl
+        PUBLIC_IP=$$(curl -s https://api.ipify.org)
+        echo "Current public IP: $$PUBLIC_IP"
+        echo -e "http:\n  middlewares:\n    admin-whitelist:\n      ipWhiteList:\n        sourceRange:\n          - \"192.168.0.0/16\"\n          - \"10.8.0.0/24\"\n          - \"172.16.0.0/12\"\n          - \"172.40.0.0/16\"\n          - \"172.41.0.0/16\"\n          - \"$$PUBLIC_IP/32\"" > /dynamic-conf/custom-ips.yml
+        echo "Updated IP whitelist configuration"
+        sleep 14400
+      done'
     
 networks:
   proxy:
@@ -113,3 +161,4 @@ networks:
       config:
       - subnet: 172.41.0.0/16
     attachable: true
+

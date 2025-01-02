@@ -23,16 +23,30 @@ services:
     networks:
       proxy:
     labels:
+      # Basis-Konfiguration
       - "traefik.docker.network=proxy"
       - "traefik.enable=true"
+      
+      # HTTP zu HTTPS Weiterleitung
+      - "traefik.http.routers.owncloud.entrypoints=web"
+      - "traefik.http.routers.owncloud.rule=Host(`owncloud.${DOMAIN}`)"
+      - "traefik.http.routers.owncloud.middlewares=redirect-to-https@docker"
+      
+      # HTTPS Konfiguration
       - "traefik.http.routers.owncloud-secure.entrypoints=websecure"
-      - "traefik.http.routers.owncloud-secure.middlewares=default@file,owncloud-whitelist@docker"
       - "traefik.http.routers.owncloud-secure.rule=Host(`owncloud.${DOMAIN}`)"
-      - "traefik.http.routers.owncloud-secure.service=owncloud"
       - "traefik.http.routers.owncloud-secure.tls=true"
       - "traefik.http.routers.owncloud-secure.tls.certresolver=http_resolver"
+      
+      # Service Konfiguration
       - "traefik.http.services.owncloud.loadbalancer.server.port=80"
-      - "traefik.http.middlewares.owncloud-whitelist.ipwhitelist.sourcerange=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12"
+      
+      # Middleware Chain
+      - "traefik.http.routers.owncloud-secure.middlewares=default@file,admin-whitelist@file,rate-limit@docker"
+      
+      # Sticky Sessions für bessere Performance
+      - "traefik.http.services.owncloud.loadbalancer.sticky.cookie.httpOnly=true"
+      - "traefik.http.services.owncloud.loadbalancer.sticky.cookie.secure=true"
 
 networks:
   proxy:

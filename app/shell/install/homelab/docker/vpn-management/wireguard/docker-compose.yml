@@ -40,15 +40,26 @@ services:
       - ./db:/app/db
       - ./config:/etc/wireguard
     labels:
-      traefik.docker.network: proxy
-      traefik.enable: "true"
-      traefik.http.routers.wireguard-ui-secure.entrypoints: websecure
-      traefik.http.routers.wireguard-ui-secure.middlewares: default@file
-      traefik.http.routers.wireguard-ui-secure.rule: Host(`wireguard-ui.${DOMAIN}`)
-      traefik.http.routers.wireguard-ui-secure.service: wireguard-ui
-      traefik.http.routers.wireguard-ui-secure.tls: "true"
-      traefik.http.routers.wireguard-ui-secure.tls.certresolver: http_resolver
-      traefik.http.services.wireguard-ui.loadbalancer.server.port: 5000
+      # Basis-Konfiguration
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      
+      # Router Konfiguration
+      - "traefik.http.routers.wireguard-ui.entrypoints=websecure"
+      - "traefik.http.routers.wireguard-ui.rule=Host(`wireguard-ui.${DOMAIN}`)"
+      - "traefik.http.routers.wireguard-ui.tls=true"
+      - "traefik.http.routers.wireguard-ui.tls.certresolver=http_resolver"
+      
+      # Service Konfiguration
+      - "traefik.http.services.wireguard-ui.loadbalancer.server.port=5000"
+      
+      # Maximale Sicherheit mit allen Middlewares
+      - "traefik.http.routers.wireguard-ui.middlewares=default@file,traefikAuth@file,admin-whitelist@file,rate-limit@docker"
+      
+      # Sticky Sessions
+      - "traefik.http.services.wireguard-ui.loadbalancer.sticky.cookie.httpOnly=true"
+      - "traefik.http.services.wireguard-ui.loadbalancer.sticky.cookie.secure=true"
+
 
 networks:
   proxy:

@@ -15,7 +15,7 @@ _BITWARDEN_ENV_LOADED=1
 
 # Script configuration
 SERVICE_NAME="bitwarden"
-ENV_FILE="bw.env"
+ENV_FILE="bitwarden.env"
 
 print_header "Updating Bitwarden Environment"
 
