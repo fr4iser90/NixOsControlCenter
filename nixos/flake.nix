@@ -22,24 +22,8 @@
       ./hardware-configuration.nix
       
       # Core system management
-      ./modules/boot-management
-      ./modules/nix-management
-      ./modules/log-management
-      ./modules/cli-management
-      
-      # Hardware & Network
-      ./modules/hardware-management
-      ./modules/network-management
-      ./modules/audio-management 
-      
-      # User management
-      ./modules/user-management
-      ./modules/profile-management
-      ./modules/desktop-management
-      ./modules/system-management
-
-      # Homelab management
-      ./modules/homelab-management
+      ./modules
+      ./packages
     
 #      # Local overrides (loaded last)
 #      ./local
@@ -73,7 +57,7 @@
                 users = lib.mapAttrs (username: userConfig: 
                     { config, ... }: {
                       imports = [ 
-                        (import ./modules/user-management/home-manager/roles/${userConfig.role}.nix {
+                        (import ./modules/core/user/home-manager/roles/${userConfig.role}.nix {
                           inherit pkgs lib config systemConfig;
                           user = username;
                         })

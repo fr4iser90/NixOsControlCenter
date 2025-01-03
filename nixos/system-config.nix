@@ -9,7 +9,7 @@
   #
   # Profile Modules
   #
-  profileModules = {
+  packageModules = {
     gaming = {
       streaming = true;
       emulation = true;

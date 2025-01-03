@@ -11,7 +11,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       proxy:
-        ipv4_address: 172.40.0.9
     dns:
       - 1.1.1.1
     labels:
