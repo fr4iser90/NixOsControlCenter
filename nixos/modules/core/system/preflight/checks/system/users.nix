@@ -62,6 +62,13 @@ let
     added_users=""
     users_without_password=""
     
+    # Initialize password directory structure
+    if [ ! -d "$PASSWORD_DIR" ]; then
+      ${reportingConfig.formatting.info "Creating password directory structure..."}
+      sudo mkdir -p "$PASSWORD_DIR"
+      sudo chmod 755 "$PASSWORD_DIR"
+    fi
+    
     # Check for users to be removed
     for user in $CURRENT_USERS $SYSTEMD_USERS; do
       if ! echo "$CONFIGURED_USERS" | grep -q "$user"; then
@@ -125,6 +132,14 @@ let
         ${reportingConfig.formatting.warning "Users without password:$users_without_password"}
         
         for user in $users_without_password; do
+          # Create user password directory if it doesn't exist
+          if [ ! -d "$PASSWORD_DIR/$user" ]; then
+            ${reportingConfig.formatting.info "Creating password directory for $user..."}
+            sudo mkdir -p "$PASSWORD_DIR/$user"
+            sudo chown $user:users "$PASSWORD_DIR/$user"
+            sudo chmod 700 "$PASSWORD_DIR/$user"
+          fi
+
           while true; do
             echo ""
             ${reportingConfig.formatting.info "Setting password for user: $user"}
@@ -140,13 +155,14 @@ let
                 break
                 ;;
               * )
-                # Create password directory
-                sudo mkdir -p "$PASSWORD_DIR/$user"
-                sudo chown $user:users "$PASSWORD_DIR/$user"
-                sudo chmod 700 "$PASSWORD_DIR/$user"
-                
                 # Set password
                 if passwd $user; then
+                  # Ensure password directory exists and has correct permissions
+                  sudo mkdir -p "$PASSWORD_DIR/$user"
+                  sudo chown $user:users "$PASSWORD_DIR/$user"
+                  sudo chmod 700 "$PASSWORD_DIR/$user"
+                  
+                  # Save hashed password
                   sudo sh -c "getent shadow $user | cut -d: -f2 > $PASSWORD_DIR/$user/.hashedPassword"
                   sudo chown $user:users "$PASSWORD_DIR/$user/.hashedPassword"
                   sudo chmod 600 "$PASSWORD_DIR/$user/.hashedPassword"

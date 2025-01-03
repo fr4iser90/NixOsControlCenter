@@ -23,20 +23,35 @@ NixOsControlCenter/
 │
 ├── nixos/ # NixOS configuration
 │ ├── modules/ # System modules
-│ │ ├── audio-management/
-│ │ ├── boot-management/
-│ │ ├── desktop-management/
-│ │ ├── development/
-│ │ ├── hardware-management/
-│ │ ├── log-management/
-│ │ ├── network-management/
-│ │ ├── nix-management/
-│ │ ├── profile-management/
-│ │ ├── system-management/
-│ │ ├── user-management/
-│ │ └── virtualization-management/
-│ ├── flake.nix
-│ └── system-config.nix
+│ │ ├── core/ # Core system functionality
+│ │ │ ├── boot/ # Boot and bootloader management
+│ │ │ ├── hardware/ # Hardware configuration
+│ │ │ ├── network/ # Network configuration
+│ │ │ ├── system/ # System management
+│ │ │ └── user/ # User management
+│ │ │
+│ │ ├── desktop/ # Desktop environment
+│ │ │ ├── audio/ # Audio configuration
+│ │ │ ├── display-managers/
+│ │ │ ├── display-servers/
+│ │ │ ├── environments/
+│ │ │ └── themes/ # Visual customization
+│ │ │
+│ │ └── services/ # System services
+│ │ ├── cli/ # Command-line tools
+│ │ ├── homelab/ # Homelab configuration
+│ │ ├── log/ # Logging system
+│ │ ├── ssh/ # SSH configuration
+│ │ └── virtualization/ # VM and container management
+│ │
+│ ├── packages/ # System packages and profiles
+│ │ ├── base/ # Base system configurations
+│ │ ├── custom/ # Custom configurations
+│ │ └── modules/ # Package modules
+│ │
+│ ├── local/ # Local overrides
+│ ├── flake.nix # Main Nix flake
+│ └── system-config.nix # System configuration
 │
 ├── CHANGELOG.md
 ├── dev-shell.nix # Development shell configuration
